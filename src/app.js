@@ -1,22 +1,23 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const session = require("express-session");
-const productRouter = require("./routes/products.router");
-const cartRouter = require("./routes/carts.router");
-const loginRouter = require("./routes/sessions.router");
-const handlebars = require("express-handlebars");
 const MongoStore = require("connect-mongo");
+const mongoose = require("mongoose");
+const productRouter = require("./routes/products");
+const cartRouter = require("./routes/carts");
+const loginRouter = require("./routes/sessions");
+const handlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
-const passport = require ("passport")
-const initializePassport = require("../src/config/passport.config")
+const passport = require("passport");
+const initializePassport = require("../config/passport");
+const path = require("path");
 
-var path = require("path");
 const app = express();
 const PORT = 8080;
 
-// Configución de Handlebars
-app.engine("handlebars",
-handlebars.engine({
+// HANDLEBARS CONFIGURATION
+app.engine(
+  "handlebars",
+  handlebars.engine({
     extname: "hbs",
     defaultLayout: false,
     layoutsDir: "views/",
@@ -27,13 +28,14 @@ handlebars.engine({
     },
   })
 );
-app.set("views", path.join(__dirname + "/views"));
+app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "handlebars");
 
-// Middleware para analizar el cuerpo de la solicitud
+// BODY PARSER MIDDLEWARE
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// MONGOOSE CONNECTION
 mongoose
   .connect(
     "mongodb+srv://lestian:9YTv2ykS57hAUrxa2Yh5@e-commerce.d6j4ttl.mongodb.net/e-commerce?retryWrites=true&w=majority"
@@ -45,6 +47,7 @@ mongoose
     console.log("Error!", error);
   });
 
+// EXPRESS SESSION AND STORE CONFIGURATION
 const mongoStore = MongoStore.create({
   mongoUrl:
     "mongodb+srv://lestian:9YTv2ykS57hAUrxa2Yh5@e-commerce.d6j4ttl.mongodb.net/e-commerce?retryWrites=true&w=majority",
@@ -54,28 +57,30 @@ const mongoStore = MongoStore.create({
   },
 });
 
-app.use(session({
+app.use(
+  session({
     secret: "mirrow",
     resave: false,
     saveUninitialized: false,
     store: mongoStore,
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión 1 día
+      maxAge: 1000 * 60 * 60 * 24, // Session cookie lifespan 1 day
     },
   })
 );
 
+// PASSPORT CONFIGURATION
+initializePassport(passport);
+app.use(passport.initialize());
+app.use(passport.session());
 
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
+// API ROUTES
 app.use(express.json());
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/sessions/", loginRouter);
-//PASSPORT
-initializePassport(passport)
-app.use(passport.initialize())
-app.use(passport.session())
+
+// SERVER LISTENING
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
