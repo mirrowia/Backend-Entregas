@@ -13,7 +13,6 @@ async function login(req, res, next) {
         if (!user)return res.status(400).send("Usuario no encontrado");
         // Usuario autenticado, guardar en la sesión y redirigir
         req.session.user = {
-          username: user.username,
           name: user.name,
           lastname: user.lastname,
           email: user.email,
@@ -27,8 +26,8 @@ async function login(req, res, next) {
 
 async function renderRegister(req, res) {
     if (req.session.user) {
-      const { username, name, lastname, email, age, cart, rol } = req.session.user;
-      res.render("profile", { username, name, lastname, email, age, cart, rol });
+      const { name, lastname, email, age, cart, rol } = req.session.user;
+      res.render("profile", { name, lastname, email, age, cart, rol });
     } else {
       res.render("register");
     }
@@ -62,9 +61,9 @@ async function renderPasswordChange(req, res) {
 }
 
 async function passwordChange(req, res) {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
   try {
-    const user = await userModel.findOne({ username });
+    const user = await userModel.findOne({ email });
     //VERIFY IF THE USER EXIST IN THE DB
     if (!user)
       return res
@@ -98,8 +97,8 @@ async function githubCallback(req, res, next) {
 }
 
 async function renderProfile(req, res) {
-    const { username, name, lastname, email, age, cart, rol } = req.session.user;
-    res.render("profile", { username, name, lastname, email, age, cart, rol });
+    const { name, lastname, email, age, cart, rol } = req.session.user;
+    res.render("profile", { name, lastname, email, age, cart, rol });
 }
 
 module.exports = {

@@ -10,12 +10,12 @@ const localStrategy = local.Strategy
 const initializePassport = () => {
 
     passport.use("register", new localStrategy(
-        {passReqToCallback: true,  usernameField: "username"}, async (req, username, password, done)=>{
-            const { name, lastname, age, email, cart, rol} = req.body
+        {passReqToCallback: true,  emailField: "email"}, async (req, email, password, done)=>{
+            const { name, lastname, age, cart, rol} = req.body
             try {
-                const user = await userModel.findOne({username})
+                const user = await userModel.findOne({email})
                 if(user) return done("User already exists")
-                const newUser = {username, name, lastname, age, email, cart, password: createHash(password)}
+                const newUser = {name, lastname, age, email, cart, password: createHash(password)}
                 let result = await userModel.create(newUser)
                 return done(null, result)
             } catch (error) {
@@ -24,9 +24,9 @@ const initializePassport = () => {
         }
     ))
 
-    passport.use("login", new localStrategy({usernameField: "username"}, async (username, password, done)=>{
+    passport.use("login", new localStrategy({emailField: "email"}, async (email, password, done)=>{
             try {
-                const user = await userModel.findOne({username})
+                const user = await userModel.findOne({email})
                 if (!user) return done(null, false)
                 if(!isValidPassword(user, password)) return done(null, false)
                 return done(null, user)
