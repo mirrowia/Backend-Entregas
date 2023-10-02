@@ -1,6 +1,5 @@
 const express = require("express");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
+const cookieParser = require('cookie-parser');
 const mongoose = require("mongoose");
 const productRouter = require("./routes/products");
 const cartRouter = require("./routes/carts");
@@ -47,32 +46,13 @@ mongoose
     console.log("Error!", error);
   });
 
-// EXPRESS SESSION AND STORE CONFIGURATION
-const mongoStore = MongoStore.create({
-  mongoUrl:
-    "mongodb+srv://lestian:9YTv2ykS57hAUrxa2Yh5@e-commerce.d6j4ttl.mongodb.net/e-commerce?retryWrites=true&w=majority",
-  mongoOptions: {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-});
-
-app.use(
-  session({
-    secret: "mirrow",
-    resave: false,
-    saveUninitialized: false,
-    store: mongoStore,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // Session cookie lifespan 1 day
-    },
-  })
-);
+// COOKIEPARSER CONFIGURATION
+  app.use(cookieParser());
 
 // PASSPORT CONFIGURATION
 initializePassport(passport);
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 
 // API ROUTES
 app.use(express.json());

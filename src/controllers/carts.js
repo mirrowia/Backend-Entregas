@@ -2,7 +2,7 @@ const { cartModel } = require("../models/cart");
 const { productModel } = require("../models/product");
 
 async function getCarts(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
   try {
     const carts = await cartModel.find();
     res.json({ status: "success", payload: carts });
@@ -14,41 +14,53 @@ async function getCarts(req, res) {
 }
 
 async function getCartById(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
-    const user = req.session.user
-    const id = req.params.cid;
-    
-    try {
+  const userCookie = req.cookies.user;
+
+  if (!userCookie) {
+      return res.redirect("/api/sessions/login");
+  }
+
+  
+  const user = JSON.parse(userCookie);
+  const id = req.params.cid;
+
+  try {
       const cart = await cartModel.findById(id);
       const promise = cart.products.map(async (product) => {
-        const p = {};
-        const details = await productModel.findById(product.product);
-        p.details = details;
-        p.quantity = product.quantity;
-        p.total = details.price * product.quantity;
-        return p;
+          const p = {};
+          const details = await productModel.findById(product.product);
+          p.details = details;
+          p.quantity = product.quantity;
+          p.total = details.price * product.quantity;
+          return p;
       });
       const products = await Promise.all(promise);
-  
+
       let total = 0;
       products.map((product) => {
-        total += product.total;
+          total += product.total;
       });
-  
+
       total = total.toFixed(2);
-  
+
+
+
       res.render("cart", {
-        status: "success",
-        cartId: id,
-        user: user.name,
-        products,
-        total,
+          status: "success",
+          cartId: id,
+          user: user.name,
+          products,
+          total,
       });
-    } catch (error) {}
+  } catch (error) {
+      console.error(error);
+      res.status(500).render("error", { message: "Error al obtener el carrito." });
+  }
 }
 
+
 async function addProductToCart(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     const cartId = req.params.cid;
     const productId = req.body.productId;
   
@@ -85,7 +97,7 @@ async function addProductToCart(req, res) {
 }
 
 async function updateProductQuantity(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     const { cid, pid } = req.params;
     let quantity = req.body.quantity;
   
@@ -127,7 +139,7 @@ async function updateProductQuantity(req, res) {
 }
 
 async function removeProductFromCart(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     const { cid, pid } = req.params;
     const quantity = req.body.quantity;
   
@@ -167,7 +179,7 @@ async function removeProductFromCart(req, res) {
 }
 
 async function clearCart(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     const { cid } = req.params;
   
     try {

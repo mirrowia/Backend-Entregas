@@ -1,7 +1,7 @@
 const { productModel } = require("../models/product");
 
 async function getProducts(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     let { limit, page, sort, category, stock } = req.query;
     try {
       const options = {};
@@ -51,11 +51,13 @@ async function getProducts(req, res) {
 }
 
 async function getProductsList(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
 
-    let { cart, username } = req.session.user;
+    const userCookie  = req.cookies.user;
+    const { cart, email } = JSON.parse(userCookie);
+    
     let { limit, page, sort, query } = req.query;
-  
+   
     try {
       const options = {};
       options.limit = limit ? limit : 10;
@@ -93,7 +95,7 @@ async function getProductsList(req, res) {
         pageNumbers: pageNumbers,
         categories: categories,
         cart,
-        username
+        username: email
       });
     } catch (error) {
       res.render("products", {
@@ -103,7 +105,7 @@ async function getProductsList(req, res) {
 }
 
 async function getProductById(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     let id = req.params.id;
     try {
       const product = await productModel.findById(id);
@@ -119,7 +121,7 @@ async function getProductById(req, res) {
 }
 
 async function getProductCategories(req, res) {
-    if (!req.session.user) return res.redirect("/api/sessions/login");
+    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     try {
       const categories = await productModel.distinct("category");
       res.send({

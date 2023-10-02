@@ -16,6 +16,8 @@ router.put("/passwordChange", controller.passwordChange);
 router.get("/github", controller.githubLogin);
 router.get("/githubcallback", controller.githubCallback);
 
+router.get("/current", controller.current);
+
 router.get("/", controller.renderProfile);
 
 module.exports = router;

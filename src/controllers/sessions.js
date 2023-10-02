@@ -3,36 +3,36 @@ const { createHash } = require("../../utils");
 const passport = require("passport");
 
 async function renderLogin(req, res) {
-    if (req.session.user) return res.redirect("./");
-      return res.render("login");
-  }
+  if (req.cookies.user) return res.redirect('/api/sessions/');
+  return res.render('login');
+}
 
 async function login(req, res, next) {
     passport.authenticate("login", (err, user) => {
         if (err) return res.status(500).send(err.message);
         if (!user)return res.status(400).send("Usuario no encontrado");
         // Usuario autenticado, guardar en la sesión y redirigir
-        req.session.user = {
+        res.cookie('user', JSON.stringify({
           name: user.name,
           lastname: user.lastname,
           email: user.email,
           age: user.age,
           rol: user.rol,
           cart: user.cart
-        };
+      }), { maxAge: 86400000, httpOnly: true });
         return res.redirect("/api/sessions/");
       })(req, res, next);
 }
 
 async function renderRegister(req, res) {
-    if (req.session.user) {
-      const { name, lastname, email, age, cart, rol } = req.session.user;
+  const userCookie = req.cookies.user;
+  if (userCookie) {
+      const { name, lastname, email, age, cart, rol } = JSON.parse(userCookie);
       res.render("profile", { name, lastname, email, age, cart, rol });
-    } else {
+  } else {
       res.render("register");
-    }
   }
-
+}
 async function register(req, res, next) {
     passport.authenticate("register", (err, user) => {
         if (err) return res.status(500).send(err);
@@ -42,22 +42,18 @@ async function register(req, res, next) {
 }
 
 async function logout(req, res) {
-    req.session.destroy((err) => {
-        if (err) {
-          console.error("Error al cerrar la sesión:", err);
-          return res.status(500).json({ message: "Error al cerrar la sesión" });
-        }
-        return res.status(200).json({ message: "Bye" });
-      });
+  res.clearCookie('user');
+  res.redirect("./login");
 }
 
 async function renderPasswordChange(req, res) {
-    const user = req.session.user
-    if(user){
-      res.render("passwordChange", {user})
-    }else{
+  const userCookie = req.cookies.user;
+  if (userCookie) {
+      const { name, lastname, email, age, cart, rol } = JSON.parse(userCookie);
+      res.render("passwordChange", { user: { name, lastname, email, age, cart, rol } });
+  } else {
       res.render("passwordChange");
-    }
+  }
 }
 
 async function passwordChange(req, res) {
@@ -87,18 +83,35 @@ async function githubLogin(req, res, next) {
 }
 
 async function githubCallback(req, res, next) {
-    passport.authenticate("github", async (err, user)=>{
-        if (err) return res.status(500).send("Error durante la autenticación con GitHub");
-        if (!user) return res.status(401).send("Error durante la autenticación con GitHub");
+  passport.authenticate('github', async (err, user) => {
+      if (err) return res.status(500).send('Error durante la autenticación con GitHub');
+      if (!user) return res.status(401).send('Error durante la autenticación con GitHub');
 
-        req.session.user = user; 
-        return res.redirect("./");
-    })(req, res, next);
+      // Almacena la información del usuario en la cookie
+      res.cookie('user', JSON.stringify({
+          name: user.name,
+          lastname: user.lastname,
+          email: user.email,
+          age: user.age,
+          rol: user.rol,
+          cart: user.cart
+      }), { maxAge: 86400000, httpOnly: true });
+
+      return res.redirect('./');
+  })(req, res, next);
 }
 
 async function renderProfile(req, res) {
-    const { name, lastname, email, age, cart, rol } = req.session.user;
-    res.render("profile", { name, lastname, email, age, cart, rol });
+  const userCookie = req.cookies.user;
+  if (userCookie) {
+      const { name, lastname, email, age, cart, rol } = JSON.parse(userCookie);
+      res.render("profile", { name, lastname, email, age, cart, rol });
+  } else {
+      res.redirect("./login");
+  }
+}
+async function current(req, res) {
+
 }
 
 module.exports = {
@@ -111,5 +124,6 @@ module.exports = {
   passwordChange,
   githubLogin,
   githubCallback,
-  renderProfile
+  renderProfile,
+  current
 };
