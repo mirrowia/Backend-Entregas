@@ -1,8 +1,8 @@
 const { cartModel } = require("../models/cart");
 const { productModel } = require("../models/product");
+const { decodedToken } = require("../../utils");
 
 async function getCarts(req, res) {
-    if (!req.cookies.user) return res.redirect("/api/sessions/login");
   try {
     const carts = await cartModel.find();
     res.json({ status: "success", payload: carts });
@@ -14,14 +14,9 @@ async function getCarts(req, res) {
 }
 
 async function getCartById(req, res) {
-  const userCookie = req.cookies.user;
-
-  if (!userCookie) {
-      return res.redirect("/api/sessions/login");
-  }
-
+  const token = req.cookies.token;
   
-  const user = JSON.parse(userCookie);
+  const user = decodedToken(token);
   const id = req.params.cid;
 
   try {
@@ -48,7 +43,8 @@ async function getCartById(req, res) {
       res.render("cart", {
           status: "success",
           cartId: id,
-          user: user.name,
+          username:user.name,
+          useremail: user.email,
           products,
           total,
       });
@@ -60,7 +56,6 @@ async function getCartById(req, res) {
 
 
 async function addProductToCart(req, res) {
-    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     const cartId = req.params.cid;
     const productId = req.body.productId;
   
@@ -97,7 +92,6 @@ async function addProductToCart(req, res) {
 }
 
 async function updateProductQuantity(req, res) {
-    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     const { cid, pid } = req.params;
     let quantity = req.body.quantity;
   
@@ -139,7 +133,6 @@ async function updateProductQuantity(req, res) {
 }
 
 async function removeProductFromCart(req, res) {
-    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     const { cid, pid } = req.params;
     const quantity = req.body.quantity;
   
@@ -179,7 +172,6 @@ async function removeProductFromCart(req, res) {
 }
 
 async function clearCart(req, res) {
-    if (!req.cookies.user) return res.redirect("/api/sessions/login");
     const { cid } = req.params;
   
     try {

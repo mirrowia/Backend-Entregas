@@ -2,10 +2,11 @@ const passport = require ("passport")
 const local = require("passport-local")
 const {userModel} = require("../src/models/user");
 const {cartModel} = require("../src/models/cart");
-const {createHash, isValidPassword} = require ("../utils")
+const {createHash, isValidPassword, generateToken, authToken} = require ("../utils")
 const GitHubStrategy = require("passport-github2")
 
 const localStrategy = local.Strategy
+const PRIVATE_KEY = "mirrow"
 
 const initializePassport = () => {
 
@@ -29,7 +30,8 @@ const initializePassport = () => {
                 const user = await userModel.findOne({email})
                 if (!user) return done(null, false)
                 if(!isValidPassword(user, password)) return done(null, false)
-                return done(null, user)
+                const accessToken = generateToken(user)
+                return done(null, accessToken)
             } catch (error) {
                 done("Internal server error" + error)
             }
@@ -56,9 +58,11 @@ const initializePassport = () => {
                         const cart = await cartModel.create({user: result._id, products: []})
                         result.cart = cart
                         result.save()
-                        done(null, result)
+                        const accessToken = generateToken(result)
+                        done(null, accessToken)
                     }else{
-                        done(null, user)
+                        const accessToken = generateToken(user)
+                        done(null, accessToken)
                     }
                 } catch (error) {
                     return done(error)

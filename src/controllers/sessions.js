@@ -1,12 +1,10 @@
 const { userModel } = require("../models/user");
-const { createHash } = require("../../utils");
+const { createHash, decodedToken } = require("../../utils");
 const passport = require("passport");
 
 async function renderLogin(req, res) {
-  if (req.cookies.user) return res.redirect('/api/sessions/');
   return res.render('login');
 }
-
 async function login(req, res, next) {
     passport.authenticate("login", (err, user) => {
         if (err) return res.status(500).send(err.message);
@@ -42,14 +40,14 @@ async function register(req, res, next) {
 }
 
 async function logout(req, res) {
-  res.clearCookie('user');
+  res.clearCookie('token');
   res.redirect("./login");
 }
 
 async function renderPasswordChange(req, res) {
-  const userCookie = req.cookies.user;
-  if (userCookie) {
-      const { name, lastname, email, age, cart, rol } = JSON.parse(userCookie);
+  const token = req.cookies.token;
+  if (token) {
+      const { name, lastname, email, age, cart, rol } = decodedToken(token);
       res.render("passwordChange", { user: { name, lastname, email, age, cart, rol } });
   } else {
       res.render("passwordChange");
@@ -58,6 +56,7 @@ async function renderPasswordChange(req, res) {
 
 async function passwordChange(req, res) {
     const { email, password } = req.body;
+    console.log(req.body)
   try {
     const user = await userModel.findOne({ email });
     //VERIFY IF THE USER EXIST IN THE DB
@@ -83,35 +82,34 @@ async function githubLogin(req, res, next) {
 }
 
 async function githubCallback(req, res, next) {
-  passport.authenticate('github', async (err, user) => {
+  passport.authenticate('github', async (err, token) => {
       if (err) return res.status(500).send('Error durante la autenticación con GitHub');
-      if (!user) return res.status(401).send('Error durante la autenticación con GitHub');
+      if (!token) return res.status(401).send('Error durante la autenticación con GitHub');
 
       // Almacena la información del usuario en la cookie
-      res.cookie('user', JSON.stringify({
-          name: user.name,
-          lastname: user.lastname,
-          email: user.email,
-          age: user.age,
-          rol: user.rol,
-          cart: user.cart
-      }), { maxAge: 86400000, httpOnly: true });
+      res.cookie("token", token,  { maxAge: 86400000, httpOnly: true });
 
       return res.redirect('./');
   })(req, res, next);
 }
 
 async function renderProfile(req, res) {
-  const userCookie = req.cookies.user;
-  if (userCookie) {
-      const { name, lastname, email, age, cart, rol } = JSON.parse(userCookie);
+  const token = req.cookies.token;
+  if (token) {
+      const { name, lastname, email, age, cart, rol } = decodedToken(token);
       res.render("profile", { name, lastname, email, age, cart, rol });
   } else {
       res.redirect("./login");
   }
 }
-async function current(req, res) {
 
+async function current(req, res){
+  const token = req.cookies.token;
+  if (token) {
+      res.status(200).send({user: decodedToken(token)});
+  } else {
+      res.status(401).send({error: "Not Authenticated"});
+  }
 }
 
 module.exports = {
