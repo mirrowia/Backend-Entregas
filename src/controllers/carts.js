@@ -38,8 +38,6 @@ async function getCartById(req, res) {
 
       total = total.toFixed(2);
 
-
-
       res.render("cart", {
           status: "success",
           cartId: id,
@@ -53,7 +51,6 @@ async function getCartById(req, res) {
       res.status(500).render("error", { message: "Error al obtener el carrito." });
   }
 }
-
 
 async function addProductToCart(req, res) {
     const cartId = req.params.cid;

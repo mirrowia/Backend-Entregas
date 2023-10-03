@@ -12,8 +12,8 @@ const generateToken = (user) =>{
     return token
 }
 const authToken = (req, res, next) =>{
-    const token = req.cookies.token
-    if(!token) return res.status(401).send({error: "No Authenticated"})
+    const token = req.cookies.userToken
+    if(!token) return res.redirect("/api/sessions/login")
     jwt.verify(token, PRIVATE_KEY, (error, credentials)=>{
         if(error) return res.status(403).send({error: "No Authorized"})
         req.user = credentials.user

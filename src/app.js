@@ -7,8 +7,9 @@ const loginRouter = require("./routes/sessions");
 const handlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
 const passport = require("passport");
-const initializePassport = require("../config/passport");
+const initializePassport = require("./config/passport");
 const path = require("path");
+const config = require("./config/config")
 
 
 const app = express();
@@ -28,7 +29,7 @@ app.engine(
     },
   })
 );
-app.set("views", path.join(__dirname, "../views"));
+app.set("views", path.join(__dirname, "/views"));
 app.set("view engine", "handlebars");
 
 // BODY PARSER MIDDLEWARE
@@ -38,7 +39,7 @@ app.use(bodyParser.json());
 // MONGOOSE CONNECTION
 mongoose
   .connect(
-    "mongodb+srv://lestian:9YTv2ykS57hAUrxa2Yh5@e-commerce.d6j4ttl.mongodb.net/e-commerce?retryWrites=true&w=majority"
+    config.mongoUrl
   )
   .then(() => {
     console.log("Connected to Mongo Atlas DB");

@@ -6,18 +6,11 @@ async function renderLogin(req, res) {
   return res.render('login');
 }
 async function login(req, res, next) {
-    passport.authenticate("login", (err, user) => {
+    passport.authenticate("login", (err, token) => {
         if (err) return res.status(500).send(err.message);
-        if (!user)return res.status(400).send("Usuario no encontrado");
-        // Usuario autenticado, guardar en la sesión y redirigir
-        res.cookie('user', JSON.stringify({
-          name: user.name,
-          lastname: user.lastname,
-          email: user.email,
-          age: user.age,
-          rol: user.rol,
-          cart: user.cart
-      }), { maxAge: 86400000, httpOnly: true });
+        if (!token)return res.status(400).send("Usuario no encontrado");
+        // USER IS AUTHENTICATED, SAVE TOKEN ON A COOKIE
+        res.cookie('userToken', token , { maxAge: 86400000, httpOnly: true });
         return res.redirect("/api/sessions/");
       })(req, res, next);
 }
@@ -31,12 +24,18 @@ async function renderRegister(req, res) {
       res.render("register");
   }
 }
-async function register(req, res, next) {
-    passport.authenticate("register", (err, user) => {
-        if (err) return res.status(500).send(err);
-        if (!user) return res.status(400).send("Error al registrar el usuario");
-        return res.redirect("./login");
-    })(req, res, next);
+async function register(req, res) {
+  const { name, lastname, email, age, password} = req.body
+    try {
+        const user = await userModel.findOne({email})
+        if(user) return res.status(409).send({error: "User already exist"})
+        const newUser = {name, lastname, age, email, password: createHash(password)}
+        const result = await userModel.create(newUser)
+        result.save()
+        return res.redirect("/api/sessions/login")
+    } catch (error) {
+      return res.status(500).send({error: "Error while creating a new user"})
+    }
 }
 
 async function logout(req, res) {
@@ -94,7 +93,7 @@ async function githubCallback(req, res, next) {
 }
 
 async function renderProfile(req, res) {
-  const token = req.cookies.token;
+  const token = req.cookies.userToken;
   if (token) {
       const { name, lastname, email, age, cart, rol } = decodedToken(token);
       res.render("profile", { name, lastname, email, age, cart, rol });

@@ -1,34 +1,19 @@
 const passport = require ("passport")
 const local = require("passport-local")
-const {userModel} = require("../src/models/user");
-const {cartModel} = require("../src/models/cart");
-const {createHash, isValidPassword, generateToken, authToken} = require ("../utils")
+const {userModel} = require("../models/user");
+const {cartModel} = require("../models/cart");
+const {createHash, isValidPassword, generateToken, authToken} = require ("../../utils")
 const GitHubStrategy = require("passport-github2")
+const config = require("./config")
 
 const localStrategy = local.Strategy
-const PRIVATE_KEY = "mirrow"
+const PRIVATE_KEY = config.privateKey
 
 const initializePassport = () => {
 
-    passport.use("register", new localStrategy(
-        {passReqToCallback: true,  emailField: "email"}, async (req, email, password, done)=>{
-            const { name, lastname, age, cart, rol} = req.body
-            try {
-                const user = await userModel.findOne({email})
-                if(user) return done("User already exists")
-                const newUser = {name, lastname, age, email, cart, password: createHash(password)}
-                let result = await userModel.create(newUser)
-                return done(null, result)
-            } catch (error) {
-                return done("Error trying to get an user" + error)
-            }
-        }
-    ))
-
     passport.use("login", new localStrategy({emailField: "email"}, async (email, password, done)=>{
             try {
-                const user = await userModel.findOne({email})
-                if (!user) return done(null, false)
+                const user = await userModel.findOne({email: email})
                 if(!isValidPassword(user, password)) return done(null, false)
                 const accessToken = generateToken(user)
                 return done(null, accessToken)
@@ -69,7 +54,6 @@ const initializePassport = () => {
                 }
             }
             ))
-
 
     passport.serializeUser((user, done) =>{
         return done(null, user._id);
