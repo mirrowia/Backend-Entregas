@@ -51,7 +51,7 @@ async function getProducts(req, res) {
 }
 
 async function getProductsList(req, res) {
-    const token  = req.cookies.token;
+    const token  = req.cookies.userToken;
     const { cart, email } = decodedToken(token);
     
     let { limit, page, sort, query } = req.query;

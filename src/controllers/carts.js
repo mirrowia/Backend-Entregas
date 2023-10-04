@@ -14,11 +14,9 @@ async function getCarts(req, res) {
 }
 
 async function getCartById(req, res) {
-  const token = req.cookies.token;
-  
+  const token = req.cookies.userToken;
   const user = decodedToken(token);
   const id = req.params.cid;
-
   try {
       const cart = await cartModel.findById(id);
       const promise = cart.products.map(async (product) => {
@@ -30,7 +28,6 @@ async function getCartById(req, res) {
           return p;
       });
       const products = await Promise.all(promise);
-
       let total = 0;
       products.map((product) => {
           total += product.total;

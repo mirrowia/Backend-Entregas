@@ -14,6 +14,7 @@ const initializePassport = () => {
     passport.use("login", new localStrategy({emailField: "email"}, async (email, password, done)=>{
             try {
                 const user = await userModel.findOne({email: email})
+                if (!user) return done(null, false)
                 if(!isValidPassword(user, password)) return done(null, false)
                 const accessToken = generateToken(user)
                 return done(null, accessToken)

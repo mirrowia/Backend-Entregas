@@ -8,7 +8,7 @@ async function renderLogin(req, res) {
 async function login(req, res, next) {
     passport.authenticate("login", (err, token) => {
         if (err) return res.status(500).send(err.message);
-        if (!token)return res.status(400).send("Usuario no encontrado");
+        if (!token)return res.status(400).send("El usuario no existe o la clave es erronea");
         // USER IS AUTHENTICATED, SAVE TOKEN ON A COOKIE
         res.cookie('userToken', token , { maxAge: 86400000, httpOnly: true });
         return res.redirect("/api/sessions/");
@@ -44,7 +44,7 @@ async function logout(req, res) {
 }
 
 async function renderPasswordChange(req, res) {
-  const token = req.cookies.token;
+  const token = req.cookies.userToken;
   if (token) {
       const { name, lastname, email, age, cart, rol } = decodedToken(token);
       res.render("passwordChange", { user: { name, lastname, email, age, cart, rol } });
