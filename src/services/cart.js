@@ -8,6 +8,10 @@ function getCart(id){
     return cartData.getCart(id);
 }
 
+function createCart(cart){
+    return cartData.createCart(cart)
+}
+
 function updateCart(id, cart){
     return cartData.updateCart(id, cart)
 }

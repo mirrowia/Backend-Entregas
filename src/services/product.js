@@ -5,7 +5,7 @@ function getProducts(){
 }
 
 function getProductsPaginate(object, options){
-    return productData.getPRoductsPaginate(object, options)
+    return productData.getProductsPaginate(object, options)
 }
 
 function getProduct(id){

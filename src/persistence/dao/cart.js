@@ -9,6 +9,11 @@ const cartDAO = {
     return await cartModel.findById(id)
   },
 
+  async createCart(newCart) {
+    const cart = new cartModel(newCart);
+    return await cart.save();
+  },
+
   async updateCart(id, cart) {
     try {
       const updatedCart = await cartModel.findByIdAndUpdate(id, cart, { new: true });

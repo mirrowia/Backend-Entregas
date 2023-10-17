@@ -1,4 +1,3 @@
-const { productModel } = require("../persistence/dao/models/product");
 const productService = require("../services/product")
 const { decodedToken } = require("../../utils");
 
@@ -67,18 +66,16 @@ async function getProductsList(req, res) {
       }
       if (page) options.page = page;
       query = query ? { category: query } : {};
-  
-      console.log(query)
-      let products = await productModel.paginate(query, options);
-      console.log(products)
-  
+
+      let products = await productService.getProductsPaginate(query, options)
+
       const pageNumbers = [];
       for (let i = 1; i <= products.totalPages; i++) {
         pageNumbers.push({ number: i, current: i === products.page });
       }
       let categories;
       try {
-        const result = await productModel.distinct("category");
+        const result = await productService.getCategories()
         categories = result;
         categories.push("Todas");
       } catch (error) {

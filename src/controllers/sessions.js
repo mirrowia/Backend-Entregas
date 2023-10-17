@@ -1,4 +1,4 @@
-const { userModel } = require("../persistence/dao/models/user");
+const sessionService = require("../services/session")
 const { createHash, decodedToken } = require("../../utils");
 const passport = require("passport");
 
@@ -27,11 +27,11 @@ async function renderRegister(req, res) {
 async function register(req, res) {
   const { name, lastname, email, age, password} = req.body
     try {
-        const user = await userModel.findOne({email})
+        const user = await sessionService.getUser(email)
         if(user) return res.status(409).send({error: "User already exist"})
         const newUser = {name, lastname, age, email, password: createHash(password)}
-        const result = await userModel.create(newUser)
-        result.save()
+        const result = await sessionService.createUser(newUser)
+        //result.save()
         return res.redirect("/api/sessions/login")
     } catch (error) {
       return res.status(500).send({error: "Error while creating a new user"})
@@ -56,7 +56,7 @@ async function renderPasswordChange(req, res) {
 async function passwordChange(req, res) {
     const { email, password } = req.body;
   try {
-    const user = await userModel.findOne({ email });
+    const user = await sessionService.getUser(email)
     //VERIFY IF THE USER EXIST IN THE DB
     if (!user)
       return res
@@ -65,7 +65,7 @@ async function passwordChange(req, res) {
 
     const hashedPassword = createHash(password);
     user.password = hashedPassword;
-    user.save();
+    sessionService.updateUser(user)
     return res
     .status(200)
     .send({ status: "ok", message: "Clave cambiada correctamente." });

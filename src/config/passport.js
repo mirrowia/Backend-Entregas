@@ -1,7 +1,7 @@
 const passport = require ("passport")
 const local = require("passport-local")
-const {userModel} = require("../persistence/dao/models/user");
-const {cartModel} = require("../persistence/dao/models/cart");
+const sessionService = require("../services/session")
+const cartService = require("../services/cart")
 const {createHash, isValidPassword, generateToken, authToken} = require ("../../utils")
 const GitHubStrategy = require("passport-github2")
 const config = require("./config")
@@ -13,7 +13,7 @@ const initializePassport = () => {
 
     passport.use("login", new localStrategy({emailField: "email"}, async (email, password, done)=>{
             try {
-                const user = await userModel.findOne({email: email})
+                const user = await sessionService.getUser(email)
                 if (!user) return done(null, false)
                 if(!isValidPassword(user, password)) return done(null, false)
                 const accessToken = generateToken(user)
@@ -31,7 +31,7 @@ const initializePassport = () => {
         
             },async (accessToken, refreshToken, profile, done) =>{
                 try {
-                    const user = await userModel.findOne({email: profile._json.email})
+                    const user = await sessionService.getUser(profile._json.email)
                     if(!user){
                         const newuser ={
                             name: profile._json.name,
@@ -40,8 +40,8 @@ const initializePassport = () => {
                             email: profile._json.email,
                             password: ""
                         }
-                        let result = await userModel.create(newuser)
-                        const cart = await cartModel.create({user: result._id, products: []})
+                        let result = await sessionService.createUser(newuser)
+                        const cart = await cartService.createCart({user: result._id, products: []})
                         result.cart = cart
                         result.save()
                         const accessToken = generateToken(result)
@@ -61,7 +61,7 @@ const initializePassport = () => {
     })
 
     passport.deserializeUser(async (id, done)=>{
-        const user = await userModel.findById(id)
+        const user = await sessionService.getUserById(id)
         return done(null, user)
     })
 
