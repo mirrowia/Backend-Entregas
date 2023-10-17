@@ -1,4 +1,4 @@
-const { userModel } = require("../models/user");
+const { userModel } = require("../persistence/dao/models/user");
 const { createHash, decodedToken } = require("../../utils");
 const passport = require("passport");
 
@@ -55,7 +55,6 @@ async function renderPasswordChange(req, res) {
 
 async function passwordChange(req, res) {
     const { email, password } = req.body;
-    console.log(req.body)
   try {
     const user = await userModel.findOne({ email });
     //VERIFY IF THE USER EXIST IN THE DB
@@ -86,7 +85,7 @@ async function githubCallback(req, res, next) {
       if (!token) return res.status(401).send('Error durante la autenticación con GitHub');
 
       // Almacena la información del usuario en la cookie
-      res.cookie("token", token,  { maxAge: 86400000, httpOnly: true });
+      res.cookie("userToken", token,  { maxAge: 86400000, httpOnly: true });
 
       return res.redirect('./');
   })(req, res, next);

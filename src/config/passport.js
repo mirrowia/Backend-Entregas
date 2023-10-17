@@ -1,7 +1,7 @@
 const passport = require ("passport")
 const local = require("passport-local")
-const {userModel} = require("../models/user");
-const {cartModel} = require("../models/cart");
+const {userModel} = require("../persistence/dao/models/user");
+const {cartModel} = require("../persistence/dao/models/cart");
 const {createHash, isValidPassword, generateToken, authToken} = require ("../../utils")
 const GitHubStrategy = require("passport-github2")
 const config = require("./config")

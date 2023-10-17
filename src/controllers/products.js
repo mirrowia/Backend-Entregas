@@ -1,4 +1,5 @@
-const { productModel } = require("../models/product");
+const { productModel } = require("../persistence/dao/models/product");
+const productService = require("../services/product")
 const { decodedToken } = require("../../utils");
 
 async function getProducts(req, res) {
@@ -15,11 +16,11 @@ async function getProducts(req, res) {
   
       let products;
       if (category) {
-        products = await productModel.paginate({ category: category }, options);
+        products = await productService.getProductsPaginate({ category: category }, options)
       } else if (stock != undefined) {
-        products = await productModel.paginate({ stock: { $gt: 0 } }, options);
+        products = await productService.getProductsPaginate({ stock: { $gt: 0 } }, options)
       } else {
-        products = await productModel.paginate({}, options);
+        products = await productService.getProductsPaginate({}, options)
       }
   
       const pageNumbers = [];
@@ -67,7 +68,9 @@ async function getProductsList(req, res) {
       if (page) options.page = page;
       query = query ? { category: query } : {};
   
+      console.log(query)
       let products = await productModel.paginate(query, options);
+      console.log(products)
   
       const pageNumbers = [];
       for (let i = 1; i <= products.totalPages; i++) {
@@ -105,7 +108,7 @@ async function getProductsList(req, res) {
 async function getProductById(req, res) {
     let id = req.params.id;
     try {
-      const product = await productModel.findById(id);
+      const product = await productService.getProduct(id);
   
       res.render("product", {
         payload: product,
@@ -119,7 +122,7 @@ async function getProductById(req, res) {
 
 async function getProductCategories(req, res) {
     try {
-      const categories = await productModel.distinct("category");
+      const categories = await productService.getCategories()
       res.send({
         categories: categories,
       });

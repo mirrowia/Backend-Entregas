@@ -1,10 +1,10 @@
-const { cartModel } = require("../models/cart");
-const { productModel } = require("../models/product");
 const { decodedToken } = require("../../utils");
+const cartService = require("../services/cart")
+const productService = require("../services/product")
 
 async function getCarts(req, res) {
   try {
-    const carts = await cartModel.find();
+    const carts = cartService.getCarts()
     res.json({ status: "success", payload: carts });
   } catch (error) {
     res
@@ -18,10 +18,10 @@ async function getCartById(req, res) {
   const user = decodedToken(token);
   const id = req.params.cid;
   try {
-      const cart = await cartModel.findById(id);
+    const cart = await cartService.getCart(id)
       const promise = cart.products.map(async (product) => {
           const p = {};
-          const details = await productModel.findById(product.product);
+          const details = await productService.getProduct(product.product);
           p.details = details;
           p.quantity = product.quantity;
           p.total = details.price * product.quantity;
@@ -54,16 +54,13 @@ async function addProductToCart(req, res) {
     const productId = req.body.productId;
   
     try {
-      const product = await productModel.findById(productId);
-  
+      const product = await productService.getProduct(productId);
       if (!product) res.status(404).json({ error: "No se encontro el producto" });
-  
       if (!product.stock > 0)
         res.status(404).json({ error: "No hay stock disponible del producto" });
   
-      const cart = await cartModel.findById(cartId);
+      const cart = await cartService.getCart(cartId)
       if (!cart) res.status(404).json({ error: "No se encontro el carrito" });
-  
       const cartProduct = cart.products.find(
         (product) => product.product.toString() === productId
       );
@@ -75,10 +72,10 @@ async function addProductToCart(req, res) {
       }
   
       product.stock -= 1;
-      await productModel.updateOne({ _id: productId }, product);
-  
-      await cartModel.updateOne({ _id: cartId }, cart);
-  
+
+      await productService.updateProduct(productId , product);
+      await cartService.updateCart(cartId, cart);
+
       res.status(200).json({ ok: "Producto agregado correctamente" });
     } catch (error) {
       console.log(error);
@@ -97,10 +94,10 @@ async function updateProductQuantity(req, res) {
         res.status(404).json({ error: "Cantidad no puede ser negativo" });
   
       //Search for cart by ID
-      const cart = await cartModel.findById(cid);
+      const cart = await cartService.getCart(cid);
   
       if (!cart) {
-        return res.status(404).json({ error: "Cantidad no encontrado" });
+        return res.status(404).json({ error: "Carrito no encontrado" });
       }
       //If cart exist search if the product exist in the cart
       const productIndex = cart.products.findIndex(
@@ -117,7 +114,7 @@ async function updateProductQuantity(req, res) {
       cart.products[productIndex].quantity = quantity;
   
       //Save new cart
-      await cart.save();
+      await cartService.updateCart(cid, cart)
   
       res.json({ message: "La cantidad del producto fue actualizada con exito" });
     } catch (error) {
@@ -132,7 +129,7 @@ async function removeProductFromCart(req, res) {
   
     try {
       //Search for cart by ID
-      const cart = await cartModel.findById(cid);
+      const cart = await cartService.getCart(cid);
   
       if (!cart) {
         return res.status(404).json({ error: "Carrito no encontrado" });
@@ -151,12 +148,12 @@ async function removeProductFromCart(req, res) {
       //Delete product
       cart.products.splice(productIndex, 1);
       //Save new cart
-      await cart.save();
+      await cartService.updateCart(cid, cart)
   
-      const product = await productModel.findById(pid);
+      const product = await productService.getProduct(pid);
       product.stock += parseInt(quantity);
   
-      await product.save();
+      await productService.updateProduct(pid, product)
   
       res.json({ message: "Producto eliminado del carrito con éxito" });
     } catch (error) {
@@ -169,18 +166,18 @@ async function clearCart(req, res) {
     const { cid } = req.params;
   
     try {
-      const cart = await cartModel.findById(cid);
+      const cart = await cartService.getCart(cid);
       const products = cart.products;
   
       products.map(async (product) => {
-        const p = await productModel.findById(product.product._id);
+        const p = await productService.getProduct(product.product._id)
         p.stock += product.quantity;
-        p.save();
+        await productService.updateProduct(product.product._id, p)
       });
   
       cart.products = [];
   
-      cart.save();
+      await cartService.updateCart(cid, cart)
       res.json({ message: "Productos eliminados del carrito con éxito" });
     } catch (error) {
       console.error(error);
