@@ -12,6 +12,7 @@ router.post("/register", controller.register);
 router.post("/logout", authToken, controller.logout);
 
 router.get("/passwordChange", controller.renderPasswordChange);
+router.post("/passwordChange", controller.passwordChangeEmail);
 router.put("/passwordChange", controller.passwordChange);
 
 router.get("/github", controller.githubLogin);

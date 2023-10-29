@@ -53,7 +53,7 @@ async function renderPasswordChange(req, res) {
   }
 }
 
-async function passwordChange(req, res) {
+async function passwordChangeEmail(req, res) {
     const { email, password } = req.body;
   try {
     const user = await sessionService.getUser(email)
@@ -75,6 +75,28 @@ async function passwordChange(req, res) {
   }
 }
 
+async function passwordChange(req, res) {
+  const { email, password } = req.body;
+try {
+  const user = await sessionService.getUser(email)
+  //VERIFY IF THE USER EXIST IN THE DB
+  if (!user)
+    return res
+      .status(400)
+      .send({ status: "error", error: "Credenciales incorrectas." });
+
+  const hashedPassword = createHash(password);
+  user.password = hashedPassword;
+  sessionService.updateUser(user)
+  return res
+  .status(200)
+  .send({ status: "ok", message: "Clave cambiada correctamente." });
+
+} catch (error) {
+  console.log(error);
+}
+}
+
 async function githubLogin(req, res, next) {
     passport.authenticate("github")(req, res, next);
 }
@@ -89,7 +111,7 @@ async function githubCallback(req, res, next) {
 
       return res.redirect('./');
   })(req, res, next);
-}
+} 
 
 async function renderProfile(req, res) {
   const token = req.cookies.userToken;
@@ -102,9 +124,10 @@ async function renderProfile(req, res) {
 }
 
 async function current(req, res){
-  const token = req.cookies.token;
+  const token = req.cookies.userToken;
   if (token) {
-      res.status(200).send({user: decodedToken(token)});
+    const user = decodedToken(token)
+      res.status(200).send({name: user.name, age: user.age, email:user.email, role: user.rol});
   } else {
       res.status(401).send({error: "Not Authenticated"});
   }
@@ -118,6 +141,7 @@ module.exports = {
   logout,
   renderPasswordChange,
   passwordChange,
+  passwordChangeEmail,
   githubLogin,
   githubCallback,
   renderProfile,

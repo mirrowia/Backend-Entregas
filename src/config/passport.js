@@ -13,6 +13,18 @@ const initializePassport = () => {
 
     passport.use("login", new localStrategy({emailField: "email"}, async (email, password, done)=>{
             try {
+                if (email == "adminCoder@coder.com" && password == "adminCod3r123"){
+                    const user = {
+                        name: "Administrador",
+                        lastname: "Administrador",
+                        age: 18,
+                        email: "adminCoder@coder.com",
+                        password: "adminCod3r123",
+                        rol: "Admin"
+                    }
+                    const accessToken = generateToken(user)
+                    return done(null, accessToken)
+                }
                 const user = await sessionService.getUser(email)
                 if (!user) return done(null, false)
                 if(!isValidPassword(user, password)) return done(null, false)
