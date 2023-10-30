@@ -13,18 +13,23 @@
 
 
 <body>
-    <!-- Barra superior -->
+  <!-- Barra superior -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <h1 class="navbar-brand fs-3 p-0">Perfil</h1>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item d-flex align-items-center">
-          <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/">
-            <span>{{useremail}}</span><i class="bi bi-person-circle ms-3"></i>
+          <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/"><i
+              class="bi bi-person-circle ms-3"></i>
           </a>
-          <a class="nav-link d-flex p-0 fs-5" href="/api/carts/{{cartId}}">
+          {{#unless (eq rol "Admin")}}
+          <a class="nav-link d-flex fs-5" href="/api/community">
+            <i class="bi bi-people-fill ms-3"></i>
+          </a>
+          <a class="nav-link d-flex fs-5" href="/api/carts/{{cart}}">
             <i class="bi bi-cart-fill ms-3"></i>
           </a>
+          {{/unless}}
         </li>
       </ul>
     </div>
@@ -39,7 +44,8 @@
         <div class="product-info">
           <div class="row align-items-center">
             <div class="col-md-1">
-              <button class="btn btn-danger" onclick="eliminarProducto('{{this.details._doc._id}}', '{{this.quantity}}')">
+              <button class="btn btn-danger"
+                onclick="eliminarProducto('{{this.details._doc._id}}', '{{this.quantity}}')">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </div>
@@ -89,7 +95,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({quantity }),
+        body: JSON.stringify({ quantity }),
 
       })
         .then((response) => {
