@@ -26,7 +26,7 @@
           <a class="nav-link d-flex fs-5" href="/api/community">
             <i class="bi bi-people-fill ms-3"></i>
           </a>
-          <a class="nav-link d-flex fs-5" href="/api/carts/{{cart}}">
+          <a class="nav-link d-flex fs-5" href="/api/carts/{{cartId}}">
             <i class="bi bi-cart-fill ms-3"></i>
           </a>
           {{/unless}}
@@ -70,6 +70,10 @@
       </div>
     </ul>
 
+    <div class="text-end mt-3">
+      <button class="btn btn-success" onclick="continuePurchase('{{cartId}}')">Continuar</button>
+    </div>
+
     {{else}}
     <li class="list-group-item d-flex justify-content-center align-items-center">
       <div class="text-center">
@@ -82,8 +86,6 @@
 
   <script>
     function eliminarProducto(productId, quantity) {
-
-      console.log(productId)
 
       // Reemplaza "cid" y "pid" con los valores reales si es necesario
       const cartId = "cid"; // Reemplaza "cid" con el valor correcto
@@ -113,6 +115,11 @@
 
 
     }
+
+    function continuePurchase(cartId) {
+      console.log(cartId)
+      window.location.href = `/api/carts/${cartId}/purchase`;
+    }  
   </script>
 
 </body>

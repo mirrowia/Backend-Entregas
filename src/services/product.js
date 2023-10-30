@@ -12,8 +12,16 @@ function getProduct(id){
     return productData.getProduct(id);
 }
 
+function addProduct(product){
+    return productData.createProduct(product)
+}
+
 function updateProduct(id, product){
     return productData.updateProduct(id, product)
+}
+
+function deleteProduct(id){
+    return productData.deleteProduct(id)
 }
 
 function getCategories(){
@@ -24,6 +32,8 @@ module.exports = {
     getProducts,
     getProductsPaginate,
     getProduct,
+    addProduct,
     updateProduct,
+    deleteProduct,
     getCategories
 }

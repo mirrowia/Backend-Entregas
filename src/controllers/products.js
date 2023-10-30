@@ -203,6 +203,37 @@ async function getProductManager(req, res) {
   }
 }
 
+async function getCreateProduct(req, res) {
+  try {
+    res.render("createProduct");
+  } catch (error) {
+    res.status({
+      status: error,
+    });
+  }
+}
+
+async function postCreateProduct(req, res) {
+  const { name, description, category, stock, price, image_url } = req.body;
+  try {
+    const newProduct = {
+      name,
+      description,
+      category,
+      stock,
+      price,
+      image_url
+    }
+
+    productService.addProduct(newProduct);
+
+    res.status(200).json({ message: 'Producto creado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 async function updateProduct(req, res) {
   let id = req.params.id;
   const { name, description, category, stock, price, image_url } = req.body;
@@ -225,6 +256,20 @@ async function updateProduct(req, res) {
   }
 }
 
+async function deleteProduct(req, res) {
+  let id = req.params.id;
+  try {
+    let product = productService.getProduct(id);
+    if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+
+    productService.deleteProduct(id)
+    res.status(200).json({ message: 'Producto eliminado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 module.exports = {
   getProducts,
   getProductsList,
@@ -232,5 +277,8 @@ module.exports = {
   getProductCategories,
   getProductsManager,
   getProductManager,
+  getCreateProduct,
+  postCreateProduct,
+  deleteProduct,
   updateProduct,
 };
