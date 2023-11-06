@@ -1,4 +1,4 @@
-const { decodedToken } = require("../../utils");
+const { decodedToken } = require("../utils");
 
 async function getCommunity(req, res) {
   try {

@@ -2,7 +2,7 @@ const passport = require ("passport")
 const local = require("passport-local")
 const sessionService = require("../services/session")
 const cartService = require("../services/cart")
-const {createHash, isValidPassword, generateToken, authToken} = require ("../../utils")
+const {createHash, isValidPassword, generateToken, authToken} = require ("../utils")
 const GitHubStrategy = require("passport-github2")
 const config = require("./config")
 

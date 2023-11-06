@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/sessions"); 
-const { authToken } = require("../../utils");
+const { authToken } = require("../utils");
 
 router.get("/login", controller.renderLogin);
 router.post("/login", controller.login);

@@ -1,5 +1,5 @@
 const productService = require("../services/product");
-const { decodedToken } = require("../../utils");
+const { decodedToken } = require("../utils")
 
 async function getProducts(req, res) {
   let { limit, page, sort, category, stock } = req.query;

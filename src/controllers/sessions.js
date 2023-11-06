@@ -1,5 +1,5 @@
 const sessionService = require("../services/session")
-const { createHash, decodedToken } = require("../../utils");
+const { createHash, decodedToken } = require("../utils");
 const passport = require("passport");
 
 async function renderLogin(req, res) {
@@ -8,7 +8,7 @@ async function renderLogin(req, res) {
 async function login(req, res, next) {
     passport.authenticate("login", (err, token) => {
         if (err) return res.status(500).send(err.message);
-        if (!token)return res.status(400).send("El usuario no existe o la clave es erronea");
+        if (!token)return res.status(400).send("Invalid credentials");
         // USER IS AUTHENTICATED, SAVE TOKEN ON A COOKIE
         res.cookie('userToken', token , { maxAge: 86400000, httpOnly: true });
         return res.redirect("/api/sessions/");

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const productsController = require("../controllers/products");
 const {isAdmin, denyAdmin} = require("../middlewares/roles")
-const { authToken } = require("../../utils");
+const { authToken } = require("../utils");
 
 router.get("/", authToken, productsController.getProducts);
 router.get("/list", authToken, denyAdmin, productsController.getProductsList);

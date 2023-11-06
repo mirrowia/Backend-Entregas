@@ -1,7 +1,7 @@
 const socketIo = require("socket.io");
 const cookie = require("cookie");
 const sessionService = require("../services/session")
-const { decodedToken } = require("../../utils");
+const { decodedToken } = require("../utils");
 
 const connectedUsers = [];
 const colors = ["red", "green", "blue", "lightblue", "brown"]

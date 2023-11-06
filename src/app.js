@@ -13,6 +13,7 @@ const path = require("path");
 const config = require("./config/config")
 const http = require('http');
 const configureSocket = require('./config/socketIo');
+const  mocksRouter = require("./routes/mocks")
 
 
 const app = express();
@@ -65,6 +66,7 @@ app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/sessions/", loginRouter);
 app.use("/api/community", communityRouter);
+app.use("/api/mockingproducts/", mocksRouter)
 
 // SERVER LISTENING
 server.listen(PORT, () => {

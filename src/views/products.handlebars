@@ -192,6 +192,17 @@
                         console.log('Producto agregado al carrito con éxito');
                     } else {
                         // Maneja la respuesta si hay un error
+                        Toastify({
+
+                            text: "Error :(",
+                            gravity: "bottom",
+                            position: "right",
+                            style: {
+                                background: "linear-gradient(to right, #FF0000, #FF5733)",
+                            },
+                            duration: 3000
+
+                        }).showToast();
                         console.error('Error al agregar el producto al carrito');
                     }
                 })

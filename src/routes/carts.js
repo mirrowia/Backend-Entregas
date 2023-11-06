@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const cartsController = require("../controllers/carts");
-const { authToken } = require("../../utils");
+const { authToken } = require("../utils");
 
 router.get("/", authToken, cartsController.getCarts);
 router.get("/:cid", authToken, cartsController.getCartById);

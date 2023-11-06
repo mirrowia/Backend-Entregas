@@ -1,4 +1,4 @@
-const { decodedToken } = require("../../utils");
+const { decodedToken } = require("../utils");
 const cartService = require("../services/cart");
 const productService = require("../services/product");
 const ticketService = require("../services/ticket");
@@ -162,10 +162,10 @@ async function addProductToCart(req, res) {
     const cartProduct = cart.products.find(
       (product) => product.product.toString() === productId
     );
-
-    if (cartProduct) {
-      cartProduct.quantity += 1;
-    } else {
+    if(cartProduct){
+        if(cartProduct.quantity >= product.stock) return res.status(404).json({ error: "Ya no se puede agregar mas cantidad de este producto" });
+        cartProduct.quantity += 1;
+    }else{
       cart.products.push({ product: product._id });
     }
 
