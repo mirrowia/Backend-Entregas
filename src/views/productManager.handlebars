@@ -146,7 +146,14 @@
           }, 2000); // 3000 milisegundos = 3 segundos
         })
         .catch(error => {
-          console.error('Error al guardar el producto:', error);
+          Toastify({
+            text: "Internal Server Error",
+            duration: 3000,
+            close: true,
+            gravity: "bottom",
+            position: "right",
+          }).showToast();
+          console.error('Error:', error);
         });
 
     }

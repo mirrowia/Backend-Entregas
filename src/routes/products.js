@@ -14,6 +14,6 @@ router.get("/manager/:id", authToken, isAdmin, productsController.getProductMana
 router.delete("/manager/:id", authToken, isAdmin, productsController.deleteProduct);
 router.get("/categories", authToken, productsController.getProductCategories);
 router.get("/:id", authToken, denyAdmin, productsController.getProductById);
-router.put("/:id", authToken, isAdmin, productsController.updateProduct);
+router.put("/:id", authToken, isAdmin, checkProductValues, productsController.updateProduct);
 
 module.exports = router;
