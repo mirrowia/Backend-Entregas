@@ -14,6 +14,7 @@ const config = require("./config/config")
 const http = require('http');
 const configureSocket = require('./config/socketIo');
 const  mocksRouter = require("./routes/mocks")
+const logger = require('./config/logger');
 
 
 const app = express();
@@ -44,10 +45,10 @@ app.use(bodyParser.json());
 // MONGOOSE CONNECTION
 mongoose.connect(config.mongoUrl)
   .then(() => {
-    console.log("Connected to Mongo Atlas DB");
+    logger.info("Connected to Mongo Atlas DB");
   })
   .catch((error) => {
-    console.log("Error!", error);
+    logger.error(error);
   });
 
 // SOCKET.IO CONFIG
@@ -66,9 +67,9 @@ app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/sessions/", loginRouter);
 app.use("/api/community", communityRouter);
-app.use("/api/mockingproducts/", mocksRouter)
+app.use("/api/mocking/", mocksRouter)
 
 // SERVER LISTENING
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`)
 });
