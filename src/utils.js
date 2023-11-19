@@ -1,16 +1,19 @@
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv')
 
-const PRIVATE_KEY = "mirrow"
+dotenv.config();
 
+PRIVATE_KEY= process.env.PRIVATE_KEY
 
 const createHash = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 const isValidPassword = (user, password) => bcrypt.compareSync(password, user.password);
 
-const generateToken = (user) =>{
-    const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: '24h' });
+const generateToken = (user, time) =>{
+    const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: time });
     return token
 }
+
 const authToken = (req, res, next) =>{
     const token = req.cookies.userToken
     if(!token) return res.redirect("/api/sessions/login")

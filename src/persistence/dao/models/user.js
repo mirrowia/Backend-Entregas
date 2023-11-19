@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, require: true },
   cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" },
   rol: { type: String, default: "user" },
+  misc: {type: Array, default: []}
 });
 
 //CREATE NEW CART IF NOT BEEN SPECIFIED

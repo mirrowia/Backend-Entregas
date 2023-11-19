@@ -4,10 +4,12 @@ const sessionService = require("../services/session")
 const cartService = require("../services/cart")
 const {createHash, isValidPassword, generateToken, authToken} = require ("../utils")
 const GitHubStrategy = require("passport-github2")
-const config = require("./config")
+const dotenv = require("dotenv")
+
+dotenv.config();
 
 const localStrategy = local.Strategy
-const PRIVATE_KEY = config.privateKey
+const PRIVATE_KEY = process.env.PRIVATE_KEY
 
 const initializePassport = () => {
 
@@ -28,7 +30,7 @@ const initializePassport = () => {
                 const user = await sessionService.getUser(email)
                 if (!user) return done(null, false)
                 if(!isValidPassword(user, password)) return done(null, false)
-                const accessToken = generateToken(user)
+                const accessToken = generateToken(user, "24h")
                 return done(null, accessToken)
             } catch (error) {
                 done("Internal server error" + error)
@@ -59,7 +61,7 @@ const initializePassport = () => {
                         const accessToken = generateToken(result)
                         done(null, accessToken)
                     }else{
-                        const accessToken = generateToken(user)
+                        const accessToken = generateToken(user, "24h")
                         done(null, accessToken)
                     }
                 } catch (error) {

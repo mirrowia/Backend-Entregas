@@ -1,16 +1,20 @@
 const sessionService = require("../services/session")
-const { createHash, decodedToken } = require("../utils");
+const { createHash, decodedToken , isValidPassword} = require("../utils");
 const passport = require("passport");
 const logger = require("../config/logger")
+const mailer = require("../config/nodemailer")
+const {generateToken} = require("../utils")
 
 async function renderLogin(req, res) {
-  return res.render('login');
+  if(req.cookies.userToken === undefined) return res.render('login')
+  const { name, lastname, email, age, cart, rol } = decodedToken(req.cookies.userToken);
+  res.redirect("./"); 
 }
 async function login(req, res, next) {
     passport.authenticate("login", (err, token) => {
+      console.log(err)
         if (err) return res.status(500).send(err.message);
         if (!token)return res.status(400).send("Invalid credentials");
-
         // GET EMAIL
         const email = decodedToken(token).email
         logger.info(`El usuario ${email} acaba de iniciar sesion`)
@@ -22,10 +26,10 @@ async function login(req, res, next) {
 }
 
 async function renderRegister(req, res) {
-  const userCookie = req.cookies.user;
-  if (userCookie) {
+  const userToken = req.cookies.userToken;
+  if (userToken) {
     logger.info(`El usuario ${name} acaba de iniciar sesion`)
-      const { name, lastname, email, age, cart, rol } = JSON.parse(userCookie);
+      const { name, lastname, email, age, cart, rol } = JSON.parse(userToken);
       res.render("profile", { name, lastname, email, age, cart, rol });
   } else {
       res.render("register");
@@ -48,11 +52,11 @@ async function register(req, res) {
 }
 
 async function logout(req, res) {
-
+  const token = req.cookies.userToken
   // GET EMAIL
   const email = decodedToken(token).email
   logger.info(`El usuario ${email} acaba de cerrar sesion`)
-  res.clearCookie('token');
+  res.clearCookie('userToken');
   res.redirect("./login");
 }
 
@@ -88,6 +92,37 @@ async function passwordChangeEmail(req, res) {
   } catch (error) {
     logger.error(error)
   }
+}
+
+async function sendEmail (req, res){
+
+  const user = await sessionService.getUser(req.body.email)
+  const password = await sessionService.getUser(req.body.password)
+
+  if (user === null) return res.status(200).send({ status: "ok", message: "Correo enviado" });
+  if(isValidPassword(user, password)) return res.status(400).send({ status: "error", message: "Clave incorrecta, intenta nuevamente con otra combinación." });
+  return res
+  .status(200)
+  .send({ status: "ok", message: "Clave cambiada correctamente." });
+
+  
+
+  // console.log("EH")
+  // const email = {
+  //   from: "andresisella@gmail.com",
+  //   to: "mirrow-a@hotmail.com",
+  //   subject: "E-Commerce: Security Update",
+  //   text: "Cuerpo"
+  // }
+
+  // mailer.sendMail(email, (error, info) => {
+  //   if (error) {
+  //     return console.error(error);
+  //   }
+  //   console.log('Correo enviado: ' + info.response);
+  // });
+
+
 }
 
 async function passwordChange(req, res) {
@@ -161,6 +196,7 @@ module.exports = {
   renderPasswordChange,
   passwordChange,
   passwordChangeEmail,
+  sendEmail,
   githubLogin,
   githubCallback,
   renderProfile,
