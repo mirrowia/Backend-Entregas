@@ -10,8 +10,12 @@ const userSchema = new mongoose.Schema({
   email: { type: String, require: true },
   password: { type: String, require: true },
   cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" },
-  rol: { type: String, default: "user" },
-  misc: {type: Array, default: []}
+  rol: {
+    type: String,
+    enum: ["premium", "admin", "user"],
+    default: "user"
+  },
+  misc: {type: Object, default: {} }
 });
 
 //CREATE NEW CART IF NOT BEEN SPECIFIED

@@ -11,11 +11,12 @@ router.post("/register", controller.register);
 
 router.post("/logout", authToken, controller.logout);
 
-router.get("/password-change", controller.renderPasswordChange);
-router.post("/password-change", controller.passwordChangeEmail);
-router.put("/password-change", controller.passwordChange);
+router.get("/password-recover", controller.renderPasswordRecover);
+router.post("/password-recover", controller.sendEmail)
+router.get("/password-recover/:uid", controller.renderPasswordChange)
 
-router.get("/password-change/:token", controller.sendEmail)
+router.get("/password-change", controller.renderPasswordChange);
+router.put("/password-change", controller.passwordChange);
 
 router.get("/github", controller.githubLogin);
 router.get("/githubcallback", controller.githubCallback);

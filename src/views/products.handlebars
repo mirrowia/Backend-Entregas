@@ -21,7 +21,7 @@
                     <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/"><i
                             class="bi bi-person-circle ms-3"></i>
                     </a>
-                    {{#unless (eq rol "Admin")}}
+                    {{#unless (eq rol "admin")}}
                     <a class="nav-link d-flex fs-5" href="/api/community">
                         <i class="bi bi-people-fill ms-3"></i>
                     </a>
@@ -46,6 +46,12 @@
             <button id="searchButton" class="btn btn-light">Buscar</button>
         </div>
 
+        <!-- Botón para agregar un producto -->
+        <div class="d-flex justify-content-end mt-3">
+            <button class="btn text-success fw-bold border border-success" onclick="addProduct()">Agregar Producto <i
+                    class="bi bi-plus-lg"></i></button>
+        </div>
+
         <!-- Lista de productos -->
         <table class="table">
             <thead>
@@ -55,10 +61,11 @@
                     <th>Stock</th>
                     <th id="priceHeader" style="cursor: pointer;">Precio</th>
                     <th>Imagen</th>
-                    <th></th>
+                    <th>Opciones</th>
                 </tr>
             </thead>
             <tbody>
+
                 {{#each payload}}
                 <tr>
                     <td>
@@ -80,10 +87,24 @@
                         </a>
                     </td>
                     <td>
-
+                        {{#if this._doc.owner}}
                         <button class="btn" onclick="addToCart(this)" id="{{this._doc._id}}" cart="{{../cart}}">
                             <i class="bi bi-cart-fill"></i>
                         </button>
+                        <button class="btn text-warning" onclick="editProduct(this)" data-productid="{{this._doc._id}}">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn text-danger" onclick="deleteProduct(this)"
+                            data-productid="{{this._doc._id}}">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+
+                        {{else}}
+                        <button class="btn" onclick="addToCart(this)" id="{{this._doc._id}}" cart="{{../cart}}">
+                            <i class="bi bi-cart-fill"></i>
+                        </button>
+
+                        {{/if}}
                     </td>
                 </tr>
                 {{/each}}
@@ -121,6 +142,48 @@
     </div>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
+        // EDIT PRODUCT
+        function editProduct(button) {
+            const productId = button.getAttribute("data-productid");
+            window.location.href = `/api/products/manager/${productId}`;
+        }
+
+        // ADD PRODUCT
+        function addProduct() {
+            window.location.href = "/api/products/manager/new-product";
+        }
+
+        // DELETE PRODUCT
+        function deleteProduct(button) {
+            const productId = button.getAttribute("data-productid");
+            fetch(`/api/products/manager/${productId}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        Toastify({
+                            text: "Error al eliminar el producto",
+                            duration: 3000,
+                            close: true,
+                            gravity: "bottom",
+                            position: "right",
+                        }).showToast();
+                    }
+                })
+                .catch(error => {
+                    // Mostrar un mensaje de error si ocurre un error de red u otro error durante la eliminación
+                    Toastify({
+                        text: "Error de red al eliminar el producto",
+                        duration: 3000,
+                        close: true,
+                        gravity: "bottom",
+                        position: "right",
+                    }).showToast();
+                    console.error('Error:', error);
+                });
+        }
 
         document.addEventListener("DOMContentLoaded", function () {
 

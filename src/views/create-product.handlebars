@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -130,6 +131,8 @@
         image_url: productImageUrl,
       };
 
+      let userRole;
+
       fetch('/api/products/manager/new-product', {
         method: 'POST',
         headers: {
@@ -139,6 +142,7 @@
       })
         .then(response => response.json())
         .then(data => {
+          userRole = data.userRole;
           Toastify({
             text: "Cambios guardados correctamente, regresando a la pagina anterior",
             duration: 3000,
@@ -146,8 +150,14 @@
             gravity: "bottom",
             position: "right",
           }).showToast();
+          let redirectUrl;
+          if(userRole === "premium"){
+            redirectUrl = '/api/products/list'
+          }else{
+            redirectUrl = '/api/products/manager'
+          }
           setTimeout(function () {
-            window.location.href = '/api/products/manager';
+            window.location.href = redirectUrl;
           }, 2000); // 3000 milisegundos = 3 segundos
         })
         .catch(error => {

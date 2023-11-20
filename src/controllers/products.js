@@ -58,7 +58,7 @@ async function getProducts(req, res) {
 
 async function getProductsList(req, res) {
   const token = req.cookies.userToken;
-  const { cart, email } = decodedToken(token);
+  const { cart, email, _id } = decodedToken(token);
 
   let { limit, page, sort, query } = req.query;
 
@@ -87,6 +87,11 @@ async function getProductsList(req, res) {
     } catch (error) {
       console.log(error);
     }
+
+    products.docs = products.docs.map(product => {
+      return { ...product, owner: product.owner === _id };
+    });
+
     res.render("products", {
       status: "success",
       payload: products.docs,
@@ -189,9 +194,12 @@ async function getProductsManager(req, res) {
 }
 
 async function getProductManager(req, res) {
+  console.log("EEEEOOO")
   let id = req.params.id;
   try {
     const product = await productService.getProduct(id);
+    const userId = (decodedToken(req.cookies.userToken))._id
+    if(product.owner != userId) return res.status(403).json({ error: 'Acceso no autorizado.' });
 
     res.render("productManager", {
       payload: product,
@@ -205,7 +213,7 @@ async function getProductManager(req, res) {
 
 async function getCreateProduct(req, res) {
   try {
-    res.render("createProduct");
+    res.render("create-product");
   } catch (error) {
     res.status({
       status: error,
@@ -214,7 +222,12 @@ async function getCreateProduct(req, res) {
 }
 
 async function postCreateProduct(req, res) {
+  const token = req.cookies.userToken;
+  const user = decodedToken(token)
   const { name, description, category, stock, price, image_url } = req.body;
+
+  const owner =  user._id;
+  
   try {
     const newProduct = {
       name,
@@ -222,12 +235,12 @@ async function postCreateProduct(req, res) {
       category,
       stock,
       price,
-      image_url
+      image_url,
+      owner,
     }
-
     productService.addProduct(newProduct);
 
-    res.status(200).json({ message: 'Producto creado correctamente' });
+    res.status(200).json({ message: 'Producto creado correctamente', userRole: user.rol });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -236,10 +249,13 @@ async function postCreateProduct(req, res) {
 
 async function updateProduct(req, res) {
   let id = req.params.id;
-  const { name, description, category, stock, price, image_url } = req.body;
+  const userId = (decodedToken(req.cookies.userToken))._id
+  const { name, description, category, stock, price, image_url, owner } = req.body;
+
   try {
-    let product = productService.getProduct(id);
+    let product = await productService.getProduct(id);
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+    if(! product.owner == userId) return res.status(403).json({ error: 'Acceso no autorizado.' });
 
     product.name = name;
     product.description = description;
@@ -248,7 +264,7 @@ async function updateProduct(req, res) {
     product.price = price;
     product.image_url = image_url;
 
-    productService.updateProduct(id, product);
+     productService.updateProduct(id, product);
     res.status(200).json({ message: 'Producto actualizado correctamente' });
   } catch (error) {
     console.error(error);
@@ -261,6 +277,7 @@ async function deleteProduct(req, res) {
   try {
     let product = productService.getProduct(id);
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+    if(! product.owner == userId) return res.status(403).json({ error: 'Acceso no autorizado.' });
 
     productService.deleteProduct(id)
     res.status(200).json({ message: 'Producto eliminado correctamente' });

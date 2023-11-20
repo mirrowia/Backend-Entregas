@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -46,9 +47,10 @@
             <p><strong>Apellido:</strong> {{lastname}}</p>
             <p><strong>Email:</strong> {{email}}</p>
             <p><strong>Edad:</strong> {{age}}</p>
+            <p><strong>Rol:</strong> {{rol}}</p>
           </div>
           <div class="card-footer d-flex justify-content-between">
-            {{#if (eq rol "Admin")}}
+            {{#if (eq rol "admin")}}
             <button class="btn btn-primary" onclick="productsList()">Manage
               Products</button>
             {{else}}
@@ -58,7 +60,7 @@
             {{/if}}
             <div>
 
-              {{#unless (eq rol "Admin")}}
+              {{#unless (eq rol "admin")}}
               <a href="/api/sessions/password-change" class="btn btn-warning"><i class="bi bi-key me-2"></i>Cambiar
                 clave</a>
               {{/unless}}
