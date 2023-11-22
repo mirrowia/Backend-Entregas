@@ -58,7 +58,7 @@ async function getProducts(req, res) {
 
 async function getProductsList(req, res) {
   const token = req.cookies.userToken;
-  const { cart, email, _id } = decodedToken(token);
+  const { cart, email, _id, rol} = decodedToken(token);
 
   let { limit, page, sort, query } = req.query;
 
@@ -89,8 +89,15 @@ async function getProductsList(req, res) {
     }
 
     products.docs = products.docs.map(product => {
-      return { ...product, owner: product.owner === _id };
+      if(product._doc.owner == _id){
+        product._doc.owner = true;
+      }else{
+        product._doc.owner = false
+      }
+      return product
     });
+
+    
 
     res.render("products", {
       status: "success",
@@ -104,6 +111,7 @@ async function getProductsList(req, res) {
       pageNumbers: pageNumbers,
       categories: categories,
       cart,
+      rol,
       username: email,
     });
   } catch (error) {

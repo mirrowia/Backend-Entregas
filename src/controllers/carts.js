@@ -154,6 +154,13 @@ async function addProductToCart(req, res) {
 
   try {
     const product = await productService.getProduct(productId);
+
+    const user = decodedToken(req.cookies.userToken);
+
+    if (user.rol != "admin"){
+      if (product.owner == user._id) return res.status(404).json({ error: "No puedes agregar al carrito los productos que hayas publicado." });
+    }
+    
     if (!product) return res.status(404).json({ error: "No se encontro el producto" });
     if (!product.stock > 0)return res.status(404).json({ error: "No hay stock disponible del producto" });
 

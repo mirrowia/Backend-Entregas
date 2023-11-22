@@ -45,12 +45,13 @@
             </select>
             <button id="searchButton" class="btn btn-light">Buscar</button>
         </div>
-
+        {{#if (eq rol "premium")}}
         <!-- Botón para agregar un producto -->
         <div class="d-flex justify-content-end mt-3">
             <button class="btn text-success fw-bold border border-success" onclick="addProduct()">Agregar Producto <i
                     class="bi bi-plus-lg"></i></button>
         </div>
+        {{/if}}
 
         <!-- Lista de productos -->
         <table class="table">
@@ -88,9 +89,13 @@
                     </td>
                     <td>
                         {{#if this._doc.owner}}
+                        {{#if (eq rol "admin")}}
                         <button class="btn" onclick="addToCart(this)" id="{{this._doc._id}}" cart="{{../cart}}">
                             <i class="bi bi-cart-fill"></i>
                         </button>
+                        {{else}}
+                        {{/if}}
+
                         <button class="btn text-warning" onclick="editProduct(this)" data-productid="{{this._doc._id}}">
                             <i class="bi bi-pencil-square"></i>
                         </button>
