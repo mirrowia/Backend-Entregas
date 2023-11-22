@@ -29,7 +29,8 @@ const initializePassport = () => {
                 }
                 const user = await sessionService.getUser(email)
                 if (!user) return done(null, false)
-                if(!isValidPassword(user, password)) return done(null, false)
+                if(!isValidPassword(password, user)) return done(null, false)
+
                 const accessToken = generateToken(user, "24h")
                 return done(null, accessToken)
             } catch (error) {

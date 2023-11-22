@@ -194,7 +194,6 @@ async function getProductsManager(req, res) {
 }
 
 async function getProductManager(req, res) {
-  console.log("EEEEOOO")
   let id = req.params.id;
   try {
     const product = await productService.getProduct(id);

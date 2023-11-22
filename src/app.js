@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const productRouter = require("./routes/products");
 const cartRouter = require("./routes/carts");
 const loginRouter = require("./routes/sessions");
+const usersRouter = require("./routes/users");
 const communityRouter = require("./routes/community");
 const handlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
@@ -66,6 +67,7 @@ app.use(express.json());
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/sessions/", loginRouter);
+app.use("/api/users/", usersRouter);
 app.use("/api/community", communityRouter);
 app.use("/api/mocking/", mocksRouter)
 

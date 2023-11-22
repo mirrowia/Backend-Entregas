@@ -14,7 +14,6 @@ async function renderLogin(req, res) {
 }
 async function login(req, res, next) {
   passport.authenticate("login", (err, token) => {
-    console.log(err);
     if (err) return res.status(500).send(err.message);
     if (!token) return res.status(400).send("Invalid credentials");
     // GET EMAIL
