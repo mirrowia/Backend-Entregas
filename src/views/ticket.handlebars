@@ -20,14 +20,14 @@
       <h1 class="navbar-brand fs-3 p-0">Resumen</h1>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item d-flex align-items-center">
-          <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/"><i
+          <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/shop/sessions/profile"><i
               class="bi bi-person-circle ms-3"></i>
           </a>
           {{#unless (eq rol "admin")}}
-          <a class="nav-link d-flex fs-5" href="/api/community">
+          <a class="nav-link d-flex fs-5" href="/shop/community/chat">
             <i class="bi bi-people-fill ms-3"></i>
           </a>
-          <a class="nav-link d-flex fs-5" href="/api/carts/{{cart}}">
+          <a class="nav-link d-flex fs-5" href="/shop/carts/{{cart}}">
             <i class="bi bi-cart-fill ms-3"></i>
           </a>
           {{/unless}}
@@ -38,31 +38,31 @@
   <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
     <div class="info-compra text-center">
       <div class="ticket mb-4">
-        <h2>Código de Compra: {{ticket.code}}</h2>
-        <p>Comprador: {{ticket.purchaser}}</p>
-        <p>Fecha de la compra: {{ticket.date}}</p>
+        <h2>Código de Compra: {{ticket._doc.code}}</h2>
+        <p>Comprador: {{ticket._doc.purchaser}}</p>
+        <p>Fecha de la compra: {{ticket._doc.purchase_datetime}}</p>
         <p>Tienda: 127.0.0.1</p>
       </div>
 
       <h3>Productos Comprados:</h3>
       <ul class="list-unstyled">
-        {{#each purchasedProducts}}
-        <li>{{this.productName}} - Cantidad solicitada: {{this.quantity}} - ${{this.totalPrice}}</li>
+        {{#each ticket._doc.resume.purchased_products}}
+        <li>{{this._doc.productName}} - Cantidad solicitada: {{this._doc.quantity}} - ${{this._doc.totalPrice}}</li>
         {{/each}}
       </ul>
 
-      {{#if notPurchasedProducts.length}}
+      {{#if ticket._doc.resume.not_purchased_products.length}}
       <h3>Productos No Comprados:</h3>
       <ul class="list-unstyled">
-        {{#each notPurchasedProducts}}
-        <li>{{this.productName}} - Cantidad solicitada: {{this.quantity}} - ${{this.totalPrice}}</li>
+        {{#each ticket._doc.resume.not_purchased_products}}
+        <li>{{this._doc.productName}} - Cantidad solicitada: {{this._doc.quantity}} - ${{this._doc.totalPrice}}</li>
         {{/each}}
       </ul>
       {{/if}}
 
-      <div class="bg-success text-white p-2 mt-4">Total de la compra: {{ticket.amount}}</div>
+      <div class="bg-success text-white p-2 mt-4">Total de la compra: {{ticket._doc.amount}}</div>
 
-      {{#if notPurchasedProducts.length}}
+      {{#if ticket._doc.not_purchased_products.length}}
       <img src="https://external-preview.redd.it/k_j6UTRkmPbizti-eat964aUMclgpfsfnHCgjzUaywo.png?auto=webp&s=f1183c7531df95464c336e54128f7d48f2462de4" alt="NOT_OK">
       {{else}}
       <img src="https://static.wikia.nocookie.net/fallout/images/1/18/Icon_Fo4_side_quest.png" alt="OK">

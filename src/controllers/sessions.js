@@ -17,12 +17,14 @@ async function login(req, res, next) {
     if (err) return res.status(500).send(err.message);
     if (!token) return res.status(400).send("Invalid credentials");
     // GET EMAIL
-    const email = decodedToken(token).email;
+    const user = decodedToken(token);
+    const email = user.email;
     logger.info(`El usuario ${email} acaba de iniciar sesion`);
 
     // USER IS AUTHENTICATED, SAVE TOKEN ON A COOKIE
     res.cookie("userToken", token, { maxAge: 86400000, httpOnly: true });
-    return res.redirect("/api/sessions/");
+    if(user.rol === "admin") return res.redirect("/shop/manager");
+    return res.redirect("/shop/");
   })(req, res, next);
 }
 
@@ -176,7 +178,7 @@ async function githubCallback(req, res, next) {
     // Almacena la información del usuario en la cookie
     res.cookie("userToken", token, { maxAge: 86400000, httpOnly: true });
 
-    return res.redirect("./");
+    return res.redirect("/shop/");
   })(req, res, next);
 }
 

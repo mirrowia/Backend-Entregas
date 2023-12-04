@@ -1,11 +1,15 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const mongoose = require("mongoose");
-const productRouter = require("./routes/products");
-const cartRouter = require("./routes/carts");
-const loginRouter = require("./routes/sessions");
-const usersRouter = require("./routes/users");
-const communityRouter = require("./routes/community");
+const productApiRouter = require("./routes/api/products");
+const cartApiRouter = require("./routes/api/carts");
+const loginApiRouter = require("./routes/api/sessions");
+const usersApiRouter = require("./routes/api/users");
+const mocksApiRouter = require("./routes/api/mocks")
+const productUiRouter = require("./routes/ui/products");
+const cartUiRouter = require("./routes/ui/carts");
+const loginUiRouter = require("./routes/ui/sessions");
+const communityUiRouter = require("./routes/ui/community");
 const handlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
 const passport = require("passport");
@@ -14,7 +18,7 @@ const path = require("path");
 const config = require("./config/config")
 const http = require('http');
 const configureSocket = require('./config/socketIo');
-const  mocksRouter = require("./routes/mocks")
+
 const logger = require('./config/logger');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUiExpress = require('swagger-ui-express');
@@ -79,14 +83,21 @@ const swaggerOptions = {
 const specs = swaggerJsdoc(swaggerOptions);
 app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
-// API ROUTES
 app.use(express.json());
-app.use("/api/products", productRouter);
-app.use("/api/carts", cartRouter);
-app.use("/api/sessions/", loginRouter);
-app.use("/api/users/", usersRouter);
-app.use("/api/community", communityRouter);
-app.use("/api/mocking/", mocksRouter)
+
+// UI ROUTES
+app.use("/shop/", productUiRouter);
+app.use("/shop/carts", cartUiRouter);
+app.use("/shop/sessions", loginUiRouter);
+app.use("/shop/community", communityUiRouter);
+
+
+// API ROUTES
+app.use("/api/products", productApiRouter);
+app.use("/api/carts", cartApiRouter);
+app.use("/api/sessions/", loginApiRouter);
+app.use("/api/users/", usersApiRouter);
+app.use("/api/mocking/", mocksApiRouter)
 
 // SERVER LISTENING
 server.listen(PORT, () => {

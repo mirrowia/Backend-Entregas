@@ -33,7 +33,7 @@ const validateToken = (req, res) =>{
 
 const authToken = (req, res, next) =>{
     const token = req.cookies.userToken
-    if(!token) return res.redirect("/api/sessions/login")
+    if(!token) return res.redirect("/shop/sessions/login")
     jwt.verify(token, PRIVATE_KEY, (error, credentials)=>{
         if(error) return res.status(403).send({error: "No Authorized"})
         req.user = credentials.user

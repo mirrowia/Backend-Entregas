@@ -56,7 +56,7 @@ async function getProducts(req, res) {
   }
 }
 
-async function getProductsList(req, res) {
+async function renderProducts(req, res) {
   const token = req.cookies.userToken;
   const { cart, email, _id, rol} = decodedToken(token);
 
@@ -97,8 +97,6 @@ async function getProductsList(req, res) {
       return product
     });
 
-    
-
     res.render("products", {
       status: "success",
       payload: products.docs,
@@ -117,6 +115,24 @@ async function getProductsList(req, res) {
   } catch (error) {
     res.render("products", {
       status: "error",
+    });
+  }
+}
+
+async function renderProduct(req, res) {
+  let id = req.params.id;
+  const userToken = req.cookies.userToken
+  const cart = decodedToken(userToken).cart
+  try {
+    const product = await productService.getProduct(id);
+
+    res.render("product", {
+      payload: product,
+      cart: cart
+    });
+  } catch (error) {
+    res.status({
+      status: error,
     });
   }
 }
@@ -149,7 +165,7 @@ async function getProductCategories(req, res) {
   }
 }
 
-async function getProductsManager(req, res) {
+async function renderManager(req, res) {
   const token = req.cookies.userToken;
   const { cart, email } = decodedToken(token);
 
@@ -201,7 +217,7 @@ async function getProductsManager(req, res) {
   }
 }
 
-async function getProductManager(req, res) {
+async function renderProductManagement(req, res) {
   let id = req.params.id;
   try {
     const product = await productService.getProduct(id);
@@ -218,7 +234,7 @@ async function getProductManager(req, res) {
   }
 }
 
-async function getCreateProduct(req, res) {
+async function renderProductCreation(req, res) {
   try {
     res.render("create-product");
   } catch (error) {
@@ -228,7 +244,7 @@ async function getCreateProduct(req, res) {
   }
 }
 
-async function postCreateProduct(req, res) {
+async function createProduct(req, res) {
   const token = req.cookies.userToken;
   const user = decodedToken(token)
   const { name, description, category, stock, price, image_url } = req.body;
@@ -296,13 +312,14 @@ async function deleteProduct(req, res) {
 
 module.exports = {
   getProducts,
-  getProductsList,
   getProductById,
   getProductCategories,
-  getProductsManager,
-  getProductManager,
-  getCreateProduct,
-  postCreateProduct,
+  createProduct,
   deleteProduct,
   updateProduct,
+  renderProducts,
+  renderManager,
+  renderProductCreation,
+  renderProductManagement,
+  renderProduct,
 };

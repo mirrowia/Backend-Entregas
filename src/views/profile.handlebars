@@ -18,13 +18,13 @@
       <h1 class="navbar-brand fs-3 p-0">Perfil</h1>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item d-flex align-items-center">
-          <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/"><i class="bi bi-person-circle ms-3"></i>
+          <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/shop/sessions/profile"><i class="bi bi-person-circle ms-3"></i>
           </a>
-          {{#unless (eq rol "Admin")}}
-          <a class="nav-link d-flex fs-5" href="/api/community">
+          {{#unless (eq rol "admin")}}
+          <a class="nav-link d-flex fs-5" href="/shop/community/chat">
             <i class="bi bi-people-fill ms-3"></i>
           </a>
-          <a class="nav-link d-flex fs-5" href="/api/carts/{{cart}}">
+          <a class="nav-link d-flex fs-5" href="/shop/carts/{{cart}}">
             <i class="bi bi-cart-fill ms-3"></i>
           </a>
           {{/unless}}
@@ -55,13 +55,13 @@
               Products</button>
             {{else}}
             <div>
-              <a href="/api/products/list" class="btn btn-primary"><i class="bi bi-shop me-2"></i>Tienda</a>
+              <a href="/shop/" class="btn btn-primary"><i class="bi bi-shop me-2"></i>Tienda</a>
             </div>
             {{/if}}
             <div>
 
               {{#unless (eq rol "admin")}}
-              <a href="/api/sessions/password-change" class="btn btn-warning"><i class="bi bi-key me-2"></i>Cambiar
+              <a href="/shop/sessions/password-change" class="btn btn-warning"><i class="bi bi-key me-2"></i>Cambiar
                 clave</a>
               {{/unless}}
               <button class="btn btn-danger" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>
@@ -81,7 +81,7 @@
       })
         .then(response => {
           if (response.status === 200) {
-            window.location.href = './login';
+            window.location.href = '/shop/sessions/';
           } else {
             console.error('Error al cerrar sesión');
           }
@@ -92,10 +92,11 @@
     }
     function cart(event) {
       const id = event.target.getAttribute('cart');
-      window.location.href = `/api/carts/${id}`;
+      window.location.href = `/shop/carts/${id}`;
     }
     function productsList() {
-      window.location.href = "/api/products/manager";
+      window.location.href = "/shop/manager";
+      
     }
   </script>
 </body>

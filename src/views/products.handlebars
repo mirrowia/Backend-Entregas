@@ -18,14 +18,14 @@
             <h1 class="navbar-brand fs-3 p-0">Productos</h1>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item d-flex align-items-center">
-                    <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/"><i
+                    <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/shop/sessions/profile"><i
                             class="bi bi-person-circle ms-3"></i>
                     </a>
                     {{#unless (eq rol "admin")}}
-                    <a class="nav-link d-flex fs-5" href="/api/community">
+                    <a class="nav-link d-flex fs-5" href="/shop/community/chat">
                         <i class="bi bi-people-fill ms-3"></i>
                     </a>
-                    <a class="nav-link d-flex fs-5" href="/api/carts/{{cart}}">
+                    <a class="nav-link d-flex fs-5" href="/shop/carts/{{cart}}">
                         <i class="bi bi-cart-fill ms-3"></i>
                     </a>
                     {{/unless}}
@@ -70,7 +70,7 @@
                 {{#each payload}}
                 <tr>
                     <td>
-                        <a href="/api/products/{{this._doc._id}}" class="text-decoration-none text-dark"
+                        <a href="/shop/{{this._doc._id}}" class="text-decoration-none text-dark"
                             style="font-weight: bold; font-size: 1rem; font-family: 'Arial', sans-serif;">
                             {{this._doc.name}}
                         </a>
@@ -83,7 +83,7 @@
                         </span>
                     </td>
                     <td>
-                        <a href="/api/products/{{this._doc._id}}">
+                        <a href="/shop/{{this._doc._id}}">
                             <img src="{{this._doc.image_url}}" alt="{{this._doc.name}}" width="100">
                         </a>
                     </td>
@@ -150,12 +150,12 @@
         // EDIT PRODUCT
         function editProduct(button) {
             const productId = button.getAttribute("data-productid");
-            window.location.href = `/api/products/manager/${productId}`;
+            window.location.href = `/shop/manager/${productId}`;
         }
 
         // ADD PRODUCT
         function addProduct() {
-            window.location.href = "/api/products/manager/new-product";
+            window.location.href = "/shop/manager/new-product";
         }
 
         // DELETE PRODUCT

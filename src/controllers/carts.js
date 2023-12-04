@@ -5,7 +5,7 @@ const ticketService = require("../services/ticket");
 
 async function getCarts(req, res) {
   try {
-    const carts = cartService.getCarts();
+    const carts = await cartService.getCarts();
     res.json({ status: "success", payload: carts });
   } catch (error) {
     res
@@ -14,12 +14,42 @@ async function getCarts(req, res) {
   }
 }
 
-async function getCartById(req, res) {
+async function renderCart(req, res) {
   const token = req.cookies.userToken;
   const user = decodedToken(token);
   const id = req.params.cid;
   try {
-    const cart = await cartService.getCart(id);
+    const { products, total } = await cartFunction(id);
+    res.render("cart", {
+      status: "success",
+      cartId: id,
+      username: user.name,
+      useremail: user.email,
+      products,
+      total,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "error", message: "Error al obtener los carritos" });
+  }
+}
+
+async function getCart(req, res) {
+  const id = req.params.cid;
+  try {
+    const { cart } = await cartFunction(id);
+    res.json({ status: "success", payload: cart });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "error", message: "Error al obtener los carritos" });
+  }
+}
+
+async function cartFunction(cartId) {
+  try {
+    const cart = await cartService.getCart(cartId);
     const promise = cart.products.map(async (product) => {
       const p = {};
       const details = await productService.getProduct(product.product);
@@ -36,41 +66,80 @@ async function getCartById(req, res) {
 
     total = total.toFixed(2);
 
-    res.render("cart", {
-      status: "success",
-      cartId: id,
-      username: user.name,
-      useremail: user.email,
-      products,
-      total,
-    });
+    return { cart, products, total };
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .render("error", { message: "Error al obtener el carrito." });
+    return error;
   }
 }
 
-async function getPurchase(req, res) {
-  try {
-    const token = req.cookies.userToken;
-    const user = decodedToken(token);
-    const email = user.email;
-    const id = req.params.cid;
+async function generateTicket(req, res) {
+  const token = req.cookies.userToken;
+  const user = decodedToken(token);
+  const email = user.email;
+  const cartId = req.params.cid;
 
+  try {
+    const ticketDb = await purchaseFunction(cartId, user.name, email);
+    res.redirect(`./purchase/${ticketDb._id}`);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "error", message: "Error al generar la compra" });
+  } 
+}
+
+async function renderPurchase(req, res) {
+  const token = req.cookies.userToken;
+  const user = decodedToken(token);
+  const email = user.email;
+  const cartId = req.params.cid;
+  const ticketId = req.params.tid;
+
+  if (!ticketId) res.status(500).json({ status: "error", message: "Error al obtener el ticket" });
+  
+  const ticket = await ticketService.getTicket(ticketId)
+
+    try {
+      res.render("ticket", {
+        status: "success",
+        ticket
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ status: "error", message: "Error al obtener los carritos" });
+    }
+  
+}
+
+async function getPurchase(req, res) {
+  const token = req.cookies.userToken;
+  const user = decodedToken(token);
+  const email = user.email;
+  const id = req.params.cid;
+
+  try {
+    const { ticket, notPurchasedProducts, purchasedProducts, cart } =
+      await purchaseFunction(id, user.name, email);
+
+    res.json({
+      status: "success",
+      payload: { ticket, notPurchasedProducts, purchasedProducts, cart },
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "error", message: "Error al obtener los carritos" });
+  }
+}
+
+async function purchaseFunction(cartId, name, email) {
+  try {
     // GET CART
-    const cart = await cartService.getCart(id);
+    const cart = await cartService.getCart(cartId);
 
     // VERIFY IF CART IS EMPTY
-    if (cart.products.length === 0) {
-      return res.render("cart", {
-        status: "success",
-        cartId: id,
-        username: user.name,
-        useremail: user.email,
-      });
-    }
+    if (cart.products.length === 0) return { cartId, username: name, useremail: email };
 
     // CHECK STOCK
     const purchasedProducts = [];
@@ -87,9 +156,9 @@ async function getPurchase(req, res) {
           productName: productDB.name,
           quantity: product.quantity,
           price: productDB.price,
-          totalPrice: product.quantity * productDB.price
+          totalPrice: product.quantity * productDB.price,
         });
-        notPurchasedProductsCart.push(product)
+        notPurchasedProductsCart.push(product);
       } else {
         productDB.stock -= product.quantity;
         await productService.updateProduct(product.product, productDB);
@@ -98,9 +167,9 @@ async function getPurchase(req, res) {
           productName: productDB.name,
           quantity: product.quantity,
           unitPrice: productDB.price,
-          totalPrice: product.quantity * productDB.price
+          totalPrice: product.quantity * productDB.price,
         });
-        totalPrice += product.quantity * productDB.price
+        totalPrice += product.quantity * productDB.price;
         totalQuantity += product.quantity;
       }
     });
@@ -124,27 +193,26 @@ async function getPurchase(req, res) {
       code: highestCode + 1,
       amount: totalAmount,
       purchaser: email,
+      resume:{
+        cart: cartId,
+        purchased_products: purchasedProducts,
+        not_purchased_products: notPurchasedProducts
+      }
+
     };
 
-    let ticketDB = await ticketService.createTicket(ticket);
+    let ticketDb = await ticketService.createTicket(ticket);
 
-    ticket.date = ticketDB.purchase_datetime
+    ticket.date = ticketDb.purchase_datetime;
 
     cart.products = notPurchasedProductsCart;
-    await cartService.updateCart(id, cart);
 
-    res.render("ticket", {
-      status: "success",
-      ticket,
-      notPurchasedProducts,
-      purchasedProducts,
-      cart: id,
-    });
+    await cartService.updateCart(cartId, cart);
+
+    return ticketDb;
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .render("error", { message: "Error al obtener el carrito." });
+    console.log(error)
+    return error;
   }
 }
 
@@ -157,27 +225,44 @@ async function addProductToCart(req, res) {
 
     const user = decodedToken(req.cookies.userToken);
 
-    if (user.rol != "admin"){
-      if (product.owner == user._id) return res.status(404).json({ error: "No puedes agregar al carrito los productos que hayas publicado." });
+    if (user.rol != "admin") {
+      if (product.owner) {
+        if (product.owner == user._id)
+          return res
+            .status(404)
+            .json({
+              error:
+                "No puedes agregar al carrito los productos que hayas publicado.",
+            });
+      }
     }
-    
-    if (!product) return res.status(404).json({ error: "No se encontro el producto" });
-    if (!product.stock > 0)return res.status(404).json({ error: "No hay stock disponible del producto" });
+
+    if (!product)
+      return res.status(404).json({ error: "No se encontro el producto" });
+    if (!product.stock > 0)
+      return res
+        .status(404)
+        .json({ error: "No hay stock disponible del producto" });
 
     const cart = await cartService.getCart(cartId);
     if (!cart) res.status(404).json({ error: "No se encontro el carrito" });
     const cartProduct = cart.products.find(
       (product) => product.product.toString() === productId
     );
-    if(cartProduct){
-        if(cartProduct.quantity >= product.stock) return res.status(404).json({ error: "Ya no se puede agregar mas cantidad de este producto" });
-        cartProduct.quantity += 1;
-    }else{
+    if (cartProduct) {
+      if (cartProduct.quantity >= product.stock)
+        return res
+          .status(404)
+          .json({
+            error: "Ya no se puede agregar mas cantidad de este producto",
+          });
+      cartProduct.quantity += 1;
+    } else {
       cart.products.push({ product: product._id });
     }
 
     product.stock -= 1;
-    
+
     await cartService.updateCart(cartId, cart);
 
     res.status(200).json({ ok: "Producto agregado correctamente" });
@@ -254,7 +339,6 @@ async function removeProductFromCart(req, res) {
     const product = await productService.getProduct(pid);
     product.stock += parseInt(quantity);
 
-
     res.json({ message: "Producto eliminado del carrito con éxito" });
   } catch (error) {
     console.error(error);
@@ -287,10 +371,13 @@ async function clearCart(req, res) {
 
 module.exports = {
   getCarts,
-  getCartById,
+  getCart,
   getPurchase,
+  generateTicket,
   addProductToCart,
   updateProductQuantity,
   removeProductFromCart,
   clearCart,
+  renderCart,
+  renderPurchase,
 };
