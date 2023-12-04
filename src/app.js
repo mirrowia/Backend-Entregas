@@ -16,6 +16,8 @@ const http = require('http');
 const configureSocket = require('./config/socketIo');
 const  mocksRouter = require("./routes/mocks")
 const logger = require('./config/logger');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUiExpress = require('swagger-ui-express');
 
 
 const app = express();
@@ -61,6 +63,21 @@ app.use(cookieParser());
 // PASSPORT CONFIGURATION
 initializePassport(passport);
 app.use(passport.initialize());
+
+// SWAGGER
+const swaggerOptions = {
+  definition:{
+    openapi:'3.1.0',
+    info:{
+      title:"Documentación",
+      description:"API para documentar Ecommerce"
+    }
+  },
+  apis:[`${__dirname}/docs/*/*.yaml`]
+}
+
+const specs = swaggerJsdoc(swaggerOptions);
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 // API ROUTES
 app.use(express.json());

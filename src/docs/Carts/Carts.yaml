@@ -1,0 +1,73 @@
+paths:
+  /api/carts/:
+    get:
+      summary: Obtiene todos los carritos
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: Los carritos se listaron correctamente.
+        "500":
+          description: Error interno al intentar obtener los carritos.
+  /api/carts/{cid}:
+    get:
+      summary: Obtiene un carrito por su ID
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: El carrito se obtuvo de manera correcta.
+        "500":
+          description: Error interno al intentar obtener el carrito.
+    put:
+      summary: Se modifica un carrito por su ID
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: El carrito fue actualizado correctamente.
+        "500":
+          description: Error interno al intentar modificar el carrito.
+    delete:
+      summary: Elimina el contenido del carrito indicado en su ID
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: El carrito fue vaciado correctamente.
+        "500":
+          description: Error interno al intentar vaciar el carrito.
+  /api/carts/{cid}/purchase:
+  get:
+      summary: Obtiene un carrito por su ID
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: El carrito se obtuvo de manera correcta.
+        "500":
+          description: Error interno al intentar obtener el carrito.
+  /api/carts/{cid}/products/{pid}:
+  put:
+      summary: Obtiene un carrito por su ID
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: El carrito se obtuvo de manera correcta.
+        "500":
+          description: Error interno al intentar obtener el carrito.
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: ID generado por mongo
+        user:
+          type: ObjectId
+          description: ID del usuario dueño del carrito
+        products:
+          type: Array
+          description: Array que contiene ID de los productos agregados al carrito y su cantidad
