@@ -273,7 +273,7 @@ async function createProduct(req, res) {
 async function updateProduct(req, res) {
   let id = req.params.id;
   const userId = (decodedToken(req.cookies.userToken))._id
-  const { name, description, category, stock, price, image_url, owner } = req.body;
+  const { name, description, category, stock, price, image_url} = req.body;
 
   try {
     let product = await productService.getProduct(id);

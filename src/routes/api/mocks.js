@@ -4,6 +4,6 @@ const mocksRouter = require("../../mocks/template.js");
 const loggerTest = require("../../mocks/logger.js")
 
 router.get("/", mocksRouter.getMockProducts);
-router.get("/loggerTest", loggerTest.getLogger)
+router.get("/logger-test", loggerTest.getLogger)
 
 module.exports = router;

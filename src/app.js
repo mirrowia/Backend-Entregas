@@ -91,7 +91,6 @@ app.use("/shop/carts", cartUiRouter);
 app.use("/shop/sessions", loginUiRouter);
 app.use("/shop/community", communityUiRouter);
 
-
 // API ROUTES
 app.use("/api/products", productApiRouter);
 app.use("/api/carts", cartApiRouter);

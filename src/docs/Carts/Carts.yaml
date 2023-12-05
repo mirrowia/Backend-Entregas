@@ -70,7 +70,7 @@ paths:
           description: Error interno al intentar vaciar el carrito.
   /api/carts/{cid}/purchase:
   get:
-      summary: Obtiene un carrito por su ID
+      summary: Genera resumen de compra
       tags:
         - Carts
       parameters:
@@ -82,12 +82,12 @@ paths:
           $type: String
       responses:
         "200":
-          description: El carrito se obtuvo de manera correcta.
+          description: El resumen de la compra se obtuvo de manera correcta.
         "500":
-          description: Error interno al intentar obtener el carrito.
+          description: Error interno al intentar obtener el resumen de la compra.
   /api/carts/{cid}/products/{pid}:
   put:
-      summary: Obtiene un carrito por su ID
+      summary: Actualiza los productos del carrito
       tags:
         - Carts
       parameters:
@@ -103,6 +103,43 @@ paths:
         description: ID producto en el cart
         schema:
           $type: String
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                  description: Cantidad de productos a agregar.
+  delete:
+    summary: Elimina productos del carrito
+    tags:
+      - Carts
+    parameters:
+    - name: cid
+      in: path
+      required: true
+      description: ID del cart a buscar
+      schema:
+        $type: String
+    - name: pid
+      in: path
+      required: true
+      description: ID producto en el cart
+      schema:
+        $type: String
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              quantity:
+                type: number
+                description: Cantidad de productos a eliminar.
       responses:
         "200":
           description: El carrito se obtuvo de manera correcta.
