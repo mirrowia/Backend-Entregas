@@ -9,6 +9,7 @@ router.get("/password-recover", controller.renderPasswordRecover);
 router.get("/password-recover/:uid", controller.renderPasswordChange)
 router.get("/password-change", controller.renderPasswordChange);
 router.get("/profile", authToken, controller.renderProfile);
+router.get("/documentation", authToken, controller.renderDocumentation)
 
 
 module.exports = router;

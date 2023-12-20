@@ -209,6 +209,16 @@ async function current(req, res) {
   }
 }
 
+async function renderDocumentation(req, res) {
+  const token = req.cookies.userToken;
+  if (token) {
+    const { name, lastname, email, age, cart, rol } = decodedToken(token);
+    res.render("documentation", { name, lastname, email, age, cart, rol });
+  } else {
+    res.redirect("./login");
+  }
+}
+
 module.exports = {
   renderLogin,
   login,
@@ -223,4 +233,5 @@ module.exports = {
   githubCallback,
   renderProfile,
   current,
+  renderDocumentation
 };
