@@ -64,18 +64,10 @@
             <h2>Documentación</h2>
           </div>
           <div class="card-body">
-            <form action="/upload-documents" method="post" enctype="multipart/form-data">
+            <form action="/api/users/{{_id}}/documents" method="post" enctype="multipart/form-data">
               <div class="mb-3">
-                <label for="idDocument" class="form-label">Identificación:</label>
-                <input type="file" name="idDocument" id="idDocument" class="form-control" accept=".pdf" />
-              </div>
-              <div class="mb-3">
-                <label for="addressProof" class="form-label">Comprobante de Domicilio:</label>
-                <input type="file" name="addressProof" id="addressProof" class="form-control" accept=".pdf" />
-              </div>
-              <div class="mb-3">
-                <label for="accountProof" class="form-label">Comprobante de Estado de Cuenta:</label>
-                <input type="file" name="accountProof" id="accountProof" class="form-control" accept=".pdf" />
+                <label for="documents" class="form-label">Documentos:</label>
+                <input type="file" name="documents" id="documents" class="form-control" accept=".pdf" multiple/>
               </div>
               <button type="submit" class="btn btn-warning">Subir Archivos</button>
             </form>

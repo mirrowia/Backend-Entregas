@@ -1,27 +1,75 @@
-const multer = require('multer');
-const {decodedToken } = require("../utils");
+const multer = require("multer");
+const { decodedToken } = require("../utils");
+const path = require("path");
+const fs = require("fs");
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) =>{
-        const fieldFolder = file.fieldname
-        let folder;
-        if(fieldFolder == "profile_image"){
-            folder = "profiles";
-        } else if(fieldFolder == "product_image"){
-            folder = "products";
-        }else if(fieldFolder == "profileImage"){
+const profiles = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      // GET TOKEN SO I CRETE A FOLDER FOR EVERY USER
+      const token = req.cookies.userToken;
+      const userId = decodedToken(token)._id;
+      const dest = path.join(__dirname, `../uploads/profiles/${userId}`);
 
-        }
-        
-        cb(null, `src/upload/${folder}/`)
+      // CHECK IF THE FOLDER EXISTS
+      if (!fs.existsSync(dest)) {
+        fs.mkdirSync(dest, { recursive: true });
+      }
+
+      cb(null, dest);
     },
-    filename: (req, file, cb)=>{
-        const token = req.cookies.userToken;
-        const userId = decodedToken(token)._id;
-        cb(null, `${userId}.png`)
-    }
-})
+    filename: (req, file, cb) => {
+      const fileExtension =
+        file.originalname.split(".")[file.originalname.split(".").length - 1];
+      cb(null, `profile.${fileExtension}`);
+    },
+  }),
+});
 
-const upload = multer({storage})
+const products = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const userId = decodedToken(token)._id;
+      cb(null, path.join(__dirname, `../uploads/${userId}/products`));
+    },
+    filename: (req, file, cb) => {
+      const token = req.cookies.userToken;
+      const userId = decodedToken(token)._id;
+      const fileExtension =
+        file.originalname.split(".")[file.originalname.split(".").length - 1];
+      cb(null, file.originalname);
+    },
+  }),
+});
 
-module.exports = upload;
+const documents = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      // GET TOKEN SO I CRETE A FOLDER FOR EVERY USER
+      const token = req.cookies.userToken;
+      const userId = decodedToken(token)._id;
+      const dest = path.join(__dirname, `../uploads/documents/${userId}`);
+
+      // CHECK IF THE FOLDER EXISTS
+      if (!fs.existsSync(dest)) {
+        fs.mkdirSync(dest, { recursive: true });
+      }
+
+      cb(null, dest);
+    },
+    filename: (req, file, cb) => {
+      if (file.originalname == "Identificacion.pdf") {
+        cb(null, file.originalname);
+      } else if (file.originalname == "Comprobante_de_domicilio.pdf") {
+        cb(null, file.originalname);
+      } else if (file.originalname == "Comprobante_de_estado_de_cuenta.pdf") {
+        cb(null, file.originalname);
+      } else {
+        cb(new Error('Nombre de archivo no válido'));
+      }
+    },
+  }),
+  limits: { files: 3 },
+});
+
+module.exports = { profiles, products, documents };

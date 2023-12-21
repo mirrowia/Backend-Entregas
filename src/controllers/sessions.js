@@ -13,12 +13,17 @@ async function renderLogin(req, res) {
   res.redirect("./");
 }
 async function login(req, res, next) {
-  passport.authenticate("login", (err, token) => {
+  passport.authenticate("login", async (err, token) => {
     if (err) return res.status(500).send(err.message);
     if (!token) return res.status(400).send("Invalid credentials");
     // GET EMAIL
     const user = decodedToken(token);
     const email = user.email;
+    if (email != "adminCoder@coder.com"){
+      let dbUser = await sessionService.getUser(email)
+      dbUser.last_connection = new Date()
+      await sessionService.updateUser(dbUser._id, dbUser)
+    }
     logger.info(`El usuario ${email} acaba de iniciar sesion`);
 
     // USER IS AUTHENTICATED, SAVE TOKEN ON A COOKIE
@@ -65,8 +70,13 @@ async function logout(req, res) {
   // GET EMAIL
   const email = decodedToken(token).email;
   logger.info(`El usuario ${email} acaba de cerrar sesion`);
+  if(email != "adminCoder@coder.com"){
+    let dbUser = await sessionService.getUser(email)
+  dbUser.last_connection = new Date()
+  await sessionService.updateUser(dbUser._id, dbUser)
+  }
   res.clearCookie("userToken");
-  res.redirect("./login");
+  return res.redirect("/shop/sessions/login");
 }
 
 async function renderPasswordRecover(req, res) {
@@ -178,15 +188,39 @@ async function githubCallback(req, res, next) {
     // Almacena la información del usuario en la cookie
     res.cookie("userToken", token, { maxAge: 86400000, httpOnly: true });
 
+    let dbUser = await sessionService.getUser(email)
+    dbUser.last_connection = new Date()
+    await sessionService.updateUser(dbUser._id, dbUser)
     return res.redirect("/shop/");
   })(req, res, next);
 }
 
 async function renderProfile(req, res) {
   const token = req.cookies.userToken;
+
   if (token) {
-    const { name, lastname, email, age, cart, rol } = decodedToken(token);
-    res.render("profile", { name, lastname, email, age, cart, rol });
+    const {_id, name, lastname, email, age, cart, rol } = decodedToken(token);
+
+    let identificacion = "https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg";
+    let domicilio = "https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg";
+    let cuenta = "https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg";
+    try {
+      const user = await sessionService.getUser(email)
+      
+      const isIdentificacion = user.documents.find(document => document.name === "Identificacion.pdf");
+      if(isIdentificacion) identificacion = "https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg";
+      
+      const isDomicilio = user.documents.find(document => document.name === "Comprobante_de_domicilio.pdf")
+      if(isDomicilio) domicilio = "https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg";
+      
+      const isEstadoCuenta = user.documents.find(document => document.name === "Comprobante_de_estado_de_cuenta.pdf")
+      if(isEstadoCuenta) cuenta = "https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg";
+
+    } catch (error) {
+      logger.error(error);
+    }
+    
+     res.render("profile", {_id, name, lastname, email, age, cart, rol, identificacion, domicilio, cuenta });
   } else {
     res.redirect("./login");
   }
@@ -212,8 +246,8 @@ async function current(req, res) {
 async function renderDocumentation(req, res) {
   const token = req.cookies.userToken;
   if (token) {
-    const { name, lastname, email, age, cart, rol } = decodedToken(token);
-    res.render("documentation", { name, lastname, email, age, cart, rol });
+    const { _id, name, lastname, email, age, cart, rol } = decodedToken(token);
+    res.render("documentation", { _id, name, lastname, email, age, cart, rol });
   } else {
     res.redirect("./login");
   }
