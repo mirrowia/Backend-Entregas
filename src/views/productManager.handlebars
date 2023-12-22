@@ -84,7 +84,16 @@
         <input type="text" id="productImageUrl" value="{{payload._doc.image_url}}" class="form-control mb-2"
           placeholder="URL de la Imagen">
       </p>
-      <button type="button" class="btn btn-primary w-100" onclick="applyChanges()">Aplicar</button>
+      /api/products/{{payload._doc._id}}/image
+      <form action="/api/products/{{payload._doc._id}}/image" method="post" id="uploadForm" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="product_image" class="form-label"><strong>Subir Imagen:</strong></label>
+          <input type="file" name="product_image" id="product_image" class="form-control mb-2" accept="image/*">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Subir Imagen</button>
+      </form>
+
+      <button type="button" class="btn btn-primary w-100 mt-2" onclick="applyChanges()">Aplicar</button>
       <div class="d-flex justify-content-between w-100 mt-3">
         <button type="button" class="action-btn save-btn flex-grow-1" onclick="saveChanges('{{payload._doc._id}}')">
           Guardar
@@ -163,7 +172,6 @@
     function goBack() {
       window.history.back();
     }
-
   </script>
 
 </body>

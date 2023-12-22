@@ -310,10 +310,16 @@ async function deleteProduct(req, res) {
   }
 }
 
+async function setproductImage(req, res) {
+  
+}
+
+
 module.exports = {
   getProducts,
   getProductById,
   getProductCategories,
+  setproductImage,
   createProduct,
   deleteProduct,
   updateProduct,
