@@ -1,5 +1,8 @@
 const productService = require("../services/product");
+const sessionService = require("../services/session");
 const { decodedToken } = require("../utils")
+const mailer = require("../config/nodemailer");
+const { logger } = require("../config/nodemailer");
 
 async function getProducts(req, res) {
   let { limit, page, sort, category, stock } = req.query;
@@ -222,8 +225,9 @@ async function renderProductManagement(req, res) {
   try {
     const product = await productService.getProduct(id);
     const userId = (decodedToken(req.cookies.userToken))._id
-    if(product.owner != userId) return res.status(403).json({ error: 'Acceso no autorizado.' });
-
+    if(product.owner != userId){
+      if(req.user.rol !== 'admin') return res.status(403).json({ error: 'Acceso no autorizado.' });
+    } 
     res.render("productManager", {
       payload: product,
     });
@@ -297,12 +301,35 @@ async function updateProduct(req, res) {
 
 async function deleteProduct(req, res) {
   let id = req.params.id;
-  try {
-    let product = productService.getProduct(id);
-    if (!product) return res.status(404).json({ error: "Producto no encontrado" });
-    if(! product.owner == userId) return res.status(403).json({ error: 'Acceso no autorizado.' });
+  const token = req.cookies.userToken;
+  const { email, rol} = decodedToken(token);
 
-    productService.deleteProduct(id)
+  try {
+    let product = await productService.getProduct(id);
+    if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+
+    const owner = await sessionService.getUserById(product.owner)
+    const user = await sessionService.getUser(email)
+
+    if(rol != "admin"){
+      if(owner._id.toString() != user._id.toString())return res.status(403).json({ error: 'Acceso no autorizado.' });
+    }
+
+    await productService.deleteProduct(id)
+
+    const emailToUser = {
+      from: "andresisella@gmail.com",
+      to: owner.email,
+      subject: "Product Update - E-Commerce product removed",
+      html: `<p>We're sorry to inform you that your product <b>${product.name}</b> has been removed from the store.</p>`,
+    };
+
+    mailer.sendMail(emailToUser, (error, info) => {
+      if (error) return console.error(error);
+
+      logger.info("Correo enviado: " + info.response);
+    });
+
     res.status(200).json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
     console.error(error);

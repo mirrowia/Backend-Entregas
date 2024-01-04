@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { cartModel } = require("./cart")
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const userCollection = "users";
 
@@ -17,7 +18,7 @@ const userSchema = new mongoose.Schema({
   },
   email: { type: String, require: true },
   lastname: { type: String, require: true },
-  last_connection: { type: Date, default: Date.now },
+  last_connection: { type: Date, default: "" },
   misc: {type: Object, default: {} },
   name: { type: String, require: true },
   password: { type: String, require: true },
@@ -28,6 +29,9 @@ const userSchema = new mongoose.Schema({
   }
  
 });
+
+// PAGINATION
+userSchema.plugin(mongoosePaginate);
 
 //CREATE NEW CART IF NOT BEEN SPECIFIED
 userSchema.pre('save', async function (next) {

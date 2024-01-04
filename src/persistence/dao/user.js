@@ -4,6 +4,11 @@ const userDAO = {
   async getUsers() {
     return await userModel.find();
   },
+  
+  async getUsersPaginate(object, options) {
+    if (object) return await userModel.paginate(object, options);
+    return await userModel.paginate({}, options); 
+  },
 
   async getUser(email) {
     return await userModel.findOne({email})

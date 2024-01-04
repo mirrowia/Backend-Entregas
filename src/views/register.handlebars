@@ -17,7 +17,7 @@
                         <h2 class="text-center">Registro</h2>
                     </div>
                     <div class="card-body">
-                        <form action="./register" method="POST">
+                        <form action="/api/sessions/register" method="POST">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Nombre:</label>
                                 <input type="text" class="form-control" id="name" name="name" required />
@@ -39,7 +39,7 @@
                                 <input type="password" class="form-control" id="password" name="password" required />
                             </div>
                             <div class="text-center">
-                                <button class="btn btn-secondary" onclick="window.location.href='./login'">Regresar</button>
+                                <button class="btn btn-secondary" onclick="window.location.href='/shop/sessions/login'">Regresar</button>
                                 <button type="submit" class="btn btn-primary">Confirmar</button>
                             </div>
                         </form>
