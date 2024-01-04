@@ -35,5 +35,8 @@
     "swagger-ui-express": "^5.0.0",
     "toastify-js": "^1.12.0",
     "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }
