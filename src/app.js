@@ -90,6 +90,7 @@ app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 app.use(express.json());
 
 // UI ROUTES
+app.use("/", loginUiRouter);
 app.use("/shop/", productUiRouter);
 app.use("/shop/carts", cartUiRouter);
 app.use("/shop/sessions", loginUiRouter);

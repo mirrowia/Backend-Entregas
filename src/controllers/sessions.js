@@ -12,7 +12,7 @@ async function renderLogin(req, res) {
   const { name, lastname, email, age, cart, rol } = decodedToken(
     req.cookies.userToken
   );
-  res.redirect("./");
+  res.redirect("/shop/");
 }
 async function login(req, res, next) {
   passport.authenticate("login", async (err, token) => {
@@ -207,8 +207,8 @@ async function githubCallback(req, res, next) {
 
 async function renderProfile(req, res) {
   const token = req.cookies.userToken;
-  if (!token) res.redirect("./login");
 
+  if (!token) res.redirect("/shop/sessions/login");
   const { name, lastname, email, age, cart, rol } = decodedToken(token);
 
   let user;
