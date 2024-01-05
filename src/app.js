@@ -26,7 +26,7 @@ const swaggerUiExpress = require('swagger-ui-express');
 
 const app = express();
 const server = http.createServer(app);
-const PORT = 8080;
+const PORT = process.env.PORT || 8080
 
 // HANDLEBARS CONFIGURATION
 app.engine(
@@ -100,6 +100,6 @@ app.use("/api/users/", usersApiRouter);
 app.use("/api/mocking/", mocksApiRouter)
 
 // SERVER LISTENING
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   logger.info(`Server is running on port ${PORT}`)
 });
