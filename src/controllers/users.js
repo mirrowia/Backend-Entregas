@@ -167,23 +167,21 @@ async function premiumRole(req, res) {
 }
 
 async function setProfilePicture(req, res) {
+  const token = req.cookies.userToken;
+  const userToken = decodedToken(token);
   try {
     //VERIFY IF A FILE WAS UPLOADED
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ error: "No se proporcionó ningún archivo." });
-    }
+    if (!req.file) {return res.status(400).json({ error: "No se proporcionó ningún archivo." })}
 
     const file = req.file;
-
-    // Puedes acceder a la ruta del archivo subido
     const filePath = file.path;
 
-    // Puedes realizar acciones adicionales con el archivo según tus necesidades
-    // ...
+    let user = await sessionService.getUser(userToken.email);
 
-    // Devolver una respuesta adecuada
+    user.picture = `/profiles/${user._id}/profile.jpeg`
+
+    await sessionService.updateUser(user._id, user)
+
     return res
       .status(200)
       .json({ message: "Archivo subido con éxito.", filePath });
@@ -227,7 +225,7 @@ async function uploadDocuments(req, res) {
 
     await sessionService.updateUser(user._id, user);
 
-    return res.status(200).json({ message: "Archivo subido con éxito." });
+    return res.status(200).json({ message: "Archivo subido con éxito. Favor de regresar a la pagina anterior y recargar." });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Error interno del servidor." });

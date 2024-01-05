@@ -16,6 +16,29 @@
       /* Ajusta el tamaño máximo según tus necesidades */
       max-height: 50px;
     }
+
+    .rounded-circle-container {
+      width: 200px;
+      /* Ajusta el tamaño deseado para el contenedor cuadrado */
+      height: 200px;
+      overflow: hidden;
+      border-radius: 50%;
+      /* Hace que el contenedor sea redondo */
+      display: flex;
+      justify-content: center;
+      /* Centra horizontalmente */
+      align-items: center;
+      /* Centra verticalmente */
+    }
+
+    .rounded-circle-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* Ajusta la imagen manteniendo la relación de aspecto y cubriendo el contenedor */
+      border-radius: 50%;
+      /* Hace que la imagen sea redonda */
+    }
   </style>
 </head>
 
@@ -51,27 +74,24 @@
               <span class="text-info-emphasis">{{email}}</span>
             </h1>
           </div>
-          <div class="card-body d-flex justify-content-between" style="max-height: 30vh;">
-            <div class="row g-0">
-              <div class="col-md-9">
-                <div class="body-info p-3">
-                  <p><strong>Nombre:</strong> {{name}}</p>
-                  <p><strong>Apellido:</strong> {{lastname}}</p>
-                  <p><strong>Email:</strong> {{email}}</p>
-                  <p><strong>Edad:</strong> {{age}}</p>
-                  <p><strong>Rol:</strong> {{rol}}</p>
-                </div>
+          <div class="card-body d-flex justify-content-between">
+            <div class="col-md-9">
+              <div class="body-info p-3">
+                <p><strong>Nombre:</strong> {{name}}</p>
+                <p><strong>Apellido:</strong> {{lastname}}</p>
+                <p><strong>Email:</strong> {{email}}</p>
+                <p><strong>Edad:</strong> {{age}}</p>
+                <p><strong>Rol:</strong> {{rol}}</p>
               </div>
-              <div class="col-md-3">
-                <div class="body-image text-center">
-                  {{!-- CAMBIAR --}}
-                  <img class="rounded-circle"
-                    src="https://files.cults3d.com/uploaders/13479126/illustration-file/de3adb08-3b60-4738-8b7c-6fe6b88a3f90/Vault_Boy.png"
-                    alt="Profile Picture" style="max-width: 100%; max-height: 100%;">
-                  {{#unless (eq rol "admin")}}
-                  <button class="btn btn-secondary" onclick="changeProfilePicture('{{_id}}')">Cambiar</button>
-                  {{/unless}}
+            </div>
+            <div class="col-md-3 d-flex align-items-center justify-content-center">
+              <div class="body-image text-center d-flex flex-column align-items-center">
+                <div class="rounded-circle-container">
+                  <img class="rounded-circle-img" src="{{profile_img}}" alt="Profile Picture">
                 </div>
+                {{#unless (eq rol "admin")}}
+                <button class="btn btn-secondary" onclick="changeProfilePicture('{{_id}}')">Cambiar</button>
+                {{/unless}}
               </div>
             </div>
           </div>
@@ -95,42 +115,60 @@
               <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Identificación
-                  <img src={{identificacion}} alt=""
+                  {{#if identificacion}}
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg" alt=""
                     class="img-fluid small-image">
+                  {{else}}
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg" alt=""
+                    class="img-fluid small-image">
+                  {{/if}}
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Comprobante de domicilio
-                  <img src={{domicilio}} alt=""
+                  {{#if domicilio}}
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg" alt=""
                     class="img-fluid small-image">
+                  {{else}}
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg" alt=""
+                    class="img-fluid small-image">
+                  {{/if}}
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Comprobante de estado de cuenta
-                  <img src={{cuenta}} alt=""
+                  {{#if cuenta}}
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg" alt=""
                     class="img-fluid small-image">
+                  {{else}}
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg" alt=""
+                    class="img-fluid small-image">
+                  {{/if}}
                 </li>
-                <p >Los documentos deben llamarse de la siguiente manera: </p>
-                <i class="text-black-50">Identificacion.pdf, Comprobante_de_domicilio.pdf, Comprobante_de_estado_de_cuenta.pdf</i>
+                <p>Los documentos deben llamarse de la siguiente manera: </p>
+                <i class="text-black-50">Identificacion.pdf, Comprobante_de_domicilio.pdf,
+                  Comprobante_de_estado_de_cuenta.pdf</i>
               </ul>
             </div>
             {{/unless}}
             <div class="card-footer d-flex justify-content-between">
-  {{#if (eq rol "admin")}}
-    <div>
-      <button class="btn btn-primary me-3" onclick="productsList()">Manage Products</button>
-      <button class="btn btn-primary" onclick="userList()">Manage Users</button>
-    </div>
-  {{else}}
-    <div>
-      <a href="/shop/" class="btn btn-primary"><i class="bi bi-shop me-2"></i>Tienda</a>
-    </div>
-  {{/if}}
-  <div>
-    {{#unless (eq rol "admin")}}
-      <a href="/shop/sessions/password-change" class="btn btn-warning"><i class="bi bi-key me-2"></i>Cambiar clave</a>
-    {{/unless}}
-    <button class="btn btn-danger" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Desconectar</button>
-  </div>
-</div>
+              {{#if (eq rol "admin")}}
+              <div>
+                <button class="btn btn-primary me-3" onclick="productsList()">Manage Products</button>
+                <button class="btn btn-primary" onclick="userList()">Manage Users</button>
+              </div>
+              {{else}}
+              <div>
+                <a href="/shop/" class="btn btn-primary"><i class="bi bi-shop me-2"></i>Tienda</a>
+              </div>
+              {{/if}}
+              <div>
+                {{#unless (eq rol "admin")}}
+                <a href="/shop/sessions/password-change" class="btn btn-warning"><i class="bi bi-key me-2"></i>Cambiar
+                  clave</a>
+                {{/unless}}
+                <button class="btn btn-danger" onclick="logout()"><i
+                    class="bi bi-box-arrow-right me-2"></i>Desconectar</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -153,15 +191,17 @@
             console.error('Error inesperado:', error);
           });
       }
+
       function cart(event) {
         const id = event.target.getAttribute('cart');
         window.location.href = `/shop/carts/${id}`;
       }
+
       function productsList() {
         window.location.href = "/shop/manager";
       }
 
-            function userList() {
+      function userList() {
         window.location.href = "/shop/sessions/users-management/";
       }
 
@@ -203,9 +243,9 @@
           allowOutsideClick: () => !Swal.isLoading(),
         }).then((result) => {
           if (result.isConfirmed) {
-            Swal.fire('¡Imagen subida con éxito!', '', 'success');
-            // Puedes actualizar la imagen en la página si es necesario
-            // Ejemplo: document.getElementById('profile-image').src = URL.createObjectURL(file);
+            Swal.fire('¡Imagen subida con éxito!', '', 'success').then(() => {
+              window.location.reload();
+            });
           }
         });
       }

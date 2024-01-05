@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
   misc: {type: Object, default: {} },
   name: { type: String, require: true },
   password: { type: String, require: true },
+  picture:{type: String, default:"https://files.cults3d.com/uploaders/13479126/illustration-file/de3adb08-3b60-4738-8b7c-6fe6b88a3f90/Vault_Boy.png"},
   rol: {
     type: String,
     enum: ["premium", "admin", "user"],

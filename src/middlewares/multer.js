@@ -1,5 +1,8 @@
 const multer = require("multer");
 const { decodedToken } = require("../utils");
+const sessionService = require("../services/session");
+const productService = require("../services/product");
+const { logger } = require("../config/nodemailer");
 const path = require("path");
 const fs = require("fs");
 
@@ -19,8 +22,8 @@ const profiles = multer({
       cb(null, dest);
     },
     filename: (req, file, cb) => {
-      const fileExtension =
-        file.originalname.split(".")[file.originalname.split(".").length - 1];
+      //const fileExtension =file.originalname.split(".")[file.originalname.split(".").length - 1];+
+      const fileExtension = "jpeg";
       cb(null, `profile.${fileExtension}`);
     },
   }),
@@ -28,22 +31,19 @@ const profiles = multer({
 
 const products = multer({
   storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      // GET TOKEN SO I CRETE A FOLDER FOR EVERY USER
-      const token = req.cookies.userToken;
-      const userId = decodedToken(token)._id;
-      const dest = path.join(__dirname, `../uploads/products/${userId}`);
+    destination: async (req, file, cb) => {
+      const productId = req.params.id;
+
+      const dest = path.join(__dirname, `../uploads/products/${productId}`);
 
       // CHECK IF THE FOLDER EXISTS
-      if (!fs.existsSync(dest)) {
-        fs.mkdirSync(dest, { recursive: true });
-      }
+      if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
 
       cb(null, dest);
     },
     filename: (req, file, cb) => {
-      const fileExtension = file.originalname.split(".")[file.originalname.split(".").length - 1];
-      cb(null, `${req.params.id}.${fileExtension}`);
+      //const fileExtension = file.originalname.split(".")[file.originalname.split(".").length - 1];
+      cb(null, `product.jpeg`);
     },
   }),
 });

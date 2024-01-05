@@ -338,7 +338,24 @@ async function deleteProduct(req, res) {
 }
 
 async function setproductImage(req, res) {
-  
+  const productId = req.params.id;
+  try {
+    //VERIFY IF A FILE WAS UPLOADED
+    if (!req.file) {return res.status(400).json({ error: "No se proporcionó ningún archivo." })}
+
+    let product = await productService.getProduct(productId)
+
+    product.image_url = `/products/${productId}/product.jpeg`
+
+    await productService.updateProduct(productId, product)
+
+    return res
+      .status(200)
+      .json({ message: "Archivo subido con éxito."});
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error interno del servidor." });
+  }
 }
 
 

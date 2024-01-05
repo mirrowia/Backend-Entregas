@@ -4,6 +4,8 @@ const passport = require("passport");
 const logger = require("../config/logger");
 const mailer = require("../config/nodemailer");
 const { generateToken, validateToken } = require("../utils");
+const path = require('path');
+const fs = require("fs");
 
 async function renderLogin(req, res) {
   if (req.cookies.userToken === undefined) return res.render("login");
@@ -205,58 +207,52 @@ async function githubCallback(req, res, next) {
 
 async function renderProfile(req, res) {
   const token = req.cookies.userToken;
+  if (!token) res.redirect("./login");
 
-  if (token) {
-    const { _id, name, lastname, email, age, cart, rol } = decodedToken(token);
+  const { name, lastname, email, age, cart, rol } = decodedToken(token);
 
-    let identificacion =
-      "https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg";
-    let domicilio =
-      "https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg";
-    let cuenta =
-      "https://upload.wikimedia.org/wikipedia/commons/0/06/Eo_circle_grey_checkmark.svg";
+  let user;
+  let profile_img;
+  let identificacion = false;
+  let domicilio = false;
+  let cuenta = false;
+  let id;
+
+  if (rol != "admin") {
     try {
-      const user = await sessionService.getUser(email);
-
-      const isIdentificacion = user.documents.find(
-        (document) => document.name === "Identificacion.pdf"
-      );
-      if (isIdentificacion)
-        identificacion =
-          "https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg";
-
-      const isDomicilio = user.documents.find(
-        (document) => document.name === "Comprobante_de_domicilio.pdf"
-      );
-      if (isDomicilio)
-        domicilio =
-          "https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg";
-
-      const isEstadoCuenta = user.documents.find(
-        (document) => document.name === "Comprobante_de_estado_de_cuenta.pdf"
-      );
-      if (isEstadoCuenta)
-        cuenta =
-          "https://upload.wikimedia.org/wikipedia/commons/7/73/Flat_tick_icon.svg";
+      user = await sessionService.getUser(email);
     } catch (error) {
       logger.error(error);
     }
+    _id = user._id;
+    const projectRoot = process.cwd();
+    const documentsPath = path.join(projectRoot, 'src', 'uploads', 'documents');
 
-    res.render("profile", {
-      _id,
-      name,
-      lastname,
-      email,
-      age,
-      cart,
-      rol,
-      identificacion,
-      domicilio,
-      cuenta,
-    });
+    if (fs.existsSync(`${documentsPath}/${_id}/Identificacion.pdf`))
+      identificacion = true;
+    if (fs.existsSync(`${documentsPath}/${_id}/Comprobante_de_domicilio.pdf`))
+      domicilio = true;
+    if (fs.existsSync(`${documentsPath}/${_id}/Comprobante_de_estado_de_cuenta.pdf`))
+      cuenta = true;
+
+    profile_img = user.picture;
   } else {
-    res.redirect("./login");
+    profile_img = `/profiles/admin/profile.jpeg`;
   }
+
+  res.render("profile", {
+    _id,
+    name,
+    lastname,
+    email,
+    age,
+    cart,
+    rol,
+    identificacion,
+    domicilio,
+    cuenta,
+    profile_img,
+  });
 }
 
 async function current(req, res) {
@@ -329,8 +325,8 @@ async function renderUserManagement(req, res) {
   try {
     const user = await sessionService.getUserById(uid);
 
-    const rol = user.rol === "premium"
-  
+    const rol = user.rol === "premium";
+
     const userFront = {
       apellido: user.lastname,
       edad: user.age,
@@ -338,8 +334,8 @@ async function renderUserManagement(req, res) {
       id: user._id,
       nombre: user.name,
       clave: user.password,
-      rol
-    }
+      rol,
+    };
     res.render("user-management", {
       status: "success",
       payload: userFront,
@@ -348,8 +344,7 @@ async function renderUserManagement(req, res) {
 }
 
 function getLastConnectiom(lc) {
-
-  if(lc === null) return "Never";
+  if (lc === null) return "Never";
 
   const today = new Date();
   const days = Math.floor((today - lc) / (1000 * 60 * 60 * 24));

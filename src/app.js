@@ -28,6 +28,9 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 8080
 
+// STATIC DIRECTORY
+app.use(express.static(path.join(__dirname, 'src', 'uploads')));
+
 // HANDLEBARS CONFIGURATION
 app.engine(
   "handlebars",
@@ -44,7 +47,7 @@ app.engine(
 );
 app.set("views", path.join(__dirname, "/views"));
 app.set("view engine", "handlebars");
-app.use( express.static('src/upload'));
+app.use( express.static('src/uploads'));
 
 // BODY PARSER MIDDLEWARE
 app.use(bodyParser.urlencoded({ extended: true }));
