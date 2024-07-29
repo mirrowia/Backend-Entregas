@@ -40,9 +40,9 @@ const initializePassport = () => {
     ))
     
     passport.use("github", new GitHubStrategy({
-                clientID : "Iv1.ef444c7acd58feb4",
-                clientSecret: "52b928542c561c6cf722e51f536fdebedffb1fbd",
-                callbackURL: "http://localhost:8080/api/sessions/githubcallback"
+                clientID : "Ov23liDFndToBZnM5heh",
+                clientSecret: "29374afe826350e013cd16e4c1f25b4c35723fbb",
+                callbackURL: "https://backend-entregas-g93lpola5-mirrowias-projects.vercel.app/login/oauth2/code/github"
         
             },async (accessToken, refreshToken, profile, done) =>{
                 try {
