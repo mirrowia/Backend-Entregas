@@ -1,10 +1,15 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const mongoose = require("mongoose");
-const productRouter = require("./routes/products");
-const cartRouter = require("./routes/carts");
-const loginRouter = require("./routes/sessions");
-const communityRouter = require("./routes/community");
+const productApiRouter = require("./routes/api/products");
+const cartApiRouter = require("./routes/api/carts");
+const loginApiRouter = require("./routes/api/sessions");
+const usersApiRouter = require("./routes/api/users");
+const mocksApiRouter = require("./routes/api/mocks")
+const productUiRouter = require("./routes/ui/products");
+const cartUiRouter = require("./routes/ui/carts");
+const loginUiRouter = require("./routes/ui/sessions");
+const communityUiRouter = require("./routes/ui/community");
 const handlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
 const passport = require("passport");
@@ -13,13 +18,18 @@ const path = require("path");
 const config = require("./config/config")
 const http = require('http');
 const configureSocket = require('./config/socketIo');
-const  mocksRouter = require("./routes/mocks")
+
 const logger = require('./config/logger');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUiExpress = require('swagger-ui-express');
 
 
 const app = express();
 const server = http.createServer(app);
-const PORT = 8080;
+const PORT = process.env.PORT || 8080
+
+// STATIC DIRECTORY
+app.use(express.static(path.join(__dirname, 'src', 'uploads')));
 
 // HANDLEBARS CONFIGURATION
 app.engine(
@@ -37,6 +47,7 @@ app.engine(
 );
 app.set("views", path.join(__dirname, "/views"));
 app.set("view engine", "handlebars");
+app.use( express.static('src/uploads'));
 
 // BODY PARSER MIDDLEWARE
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -61,15 +72,38 @@ app.use(cookieParser());
 initializePassport(passport);
 app.use(passport.initialize());
 
-// API ROUTES
+// SWAGGER
+const swaggerOptions = {
+  definition:{
+    openapi:'3.1.0',
+    info:{
+      title:"Documentación",
+      description:"API para documentar Ecommerce"
+    }
+  },
+  apis:[`${__dirname}/docs/*/*.yaml`]
+}
+
+const specs = swaggerJsdoc(swaggerOptions);
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
+
 app.use(express.json());
-app.use("/api/products", productRouter);
-app.use("/api/carts", cartRouter);
-app.use("/api/sessions/", loginRouter);
-app.use("/api/community", communityRouter);
-app.use("/api/mocking/", mocksRouter)
+
+// UI ROUTES
+app.use("/", loginUiRouter);
+app.use("/shop/", productUiRouter);
+app.use("/shop/carts", cartUiRouter);
+app.use("/shop/sessions", loginUiRouter);
+app.use("/shop/community", communityUiRouter);
+
+// API ROUTES
+app.use("/api/products", productApiRouter);
+app.use("/api/carts", cartApiRouter);
+app.use("/api/sessions/", loginApiRouter);
+app.use("/api/users/", usersApiRouter);
+app.use("/api/mocking/", mocksApiRouter)
 
 // SERVER LISTENING
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   logger.info(`Server is running on port ${PORT}`)
 });

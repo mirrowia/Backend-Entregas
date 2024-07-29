@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalles del Usuario</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <style>
+    /* Fondo degradado de gris azulado */
+    body {
+      background: linear-gradient(to bottom, #E6ECF3 0%, #C1D0E3 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .product-details {
+      margin: 5vh auto;
+      padding: 20px;
+      width: 30vw;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #productDescription {
+      height: 10vh;
+    }
+
+    .product-image {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .action-btn {
+      display: inline-block;
+      margin-right: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .save-btn {
+      background-color: #5cb85c;
+      color: #ffffff;
+    }
+
+    .cancel-btn {
+      background-color: #d9534f;
+      color: #ffffff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="product-details">
+    <div class="product-info">
+      <p><strong>ID:</strong> {{payload.id}}</p>
+      <p><strong>Nombre:</strong> <input type="text" id="name" value="{{payload.nombre}}" class="form-control mb-2"
+          placeholder="Nombre"></p>
+      <p><strong>Apellido:</strong> <input type="text" id="lastname" value="{{payload.apellido}}"
+          class="form-control mb-2" placeholder="Apellido"></p>
+      <p><strong>Email:</strong> <input type="text" id="email" value="{{payload.email}}" class="form-control mb-2"
+          placeholder="E-Mail"></p>
+      <p><strong>Clave:</strong> <input type="password" id="password" class="form-control mb-2" placeholder="Password">
+      </p>
+      <p><strong>Edad:</strong> <input type="number" id="age" value="{{payload.edad}}" class="form-control mb-2"
+          placeholder="Age"></p>
+      <p><strong>Premium:</strong>
+        {{#if payload.rol}}
+        <input class="form-check-input" type="checkbox" id="premium" checked>
+        {{else}}
+        <input class="form-check-input" type="checkbox" id="premium">
+        {{/if}}
+      </p>
+    </div>
+    <div class="d-flex justify-content-between w-100 mt-3">
+      <button type="button" class="action-btn save-btn flex-grow-1" onclick="saveChanges('{{payload.id}}')">
+        Guardar
+      </button>
+      <button type="button" class="action-btn cancel-btn ml-3 flex-grow-1" onclick="goBack()">
+        Cancelar
+      </button>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    //Guardar los datos
+    function saveChanges(_id) {
+      let name = document.getElementById("name").value;
+      let lastname = document.getElementById("lastname").value;
+      let email = document.getElementById("email").value;
+      let password = document.getElementById("password").value;
+      let age = document.getElementById("age").value;
+      let premium = document.getElementById("premium");
+
+      if (password.length > 0 && password.length < 6) return alert("La clave es muy corta")
+
+      const user = {
+        _id,
+        name,
+        lastname,
+        email,
+        age
+      };
+
+      if (password.length !== 0) user.password = password
+      if (premium.checked) {
+        user.rol = "premium"
+      } else {
+        user.rol = "user"
+      }
+
+      fetch(`/api/users/${_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(user)
+      })
+        .then(response => response.json()
+          .then(data => {
+            alert(data.message)
+            location.reload();
+          })
+        )
+        .catch(error => alert(error));
+    }
+
+    //Regresar
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+
+</body>
+
+</html>

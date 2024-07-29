@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -10,8 +11,7 @@
   <style>
     /* Fondo degradado de gris azulado */
     body {
-      background:
-        linear-gradient(to bottom, #778899 0%, #606c88 100%);
+      background: linear-gradient(to bottom, #E6ECF3 0%, #C1D0E3 100%);
       min-height: 100vh;
       margin: 0;
       display: flex;
@@ -19,17 +19,19 @@
       align-items: center;
     }
 
-    /* Estilo adicional para el contenedor de detalles */
     .product-details {
-      max-width: 800px;
-      margin: 0 auto;
+      margin: 5vh auto;
       padding: 20px;
+      width: 30vw;
       background-color: #fff;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      display:
-        flex;
-      flex-direction: row;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-image-container {
+      align-items: center;
     }
 
     /* Estilo para la imagen del producto */
@@ -45,10 +47,10 @@
       align-items:
         center;
       justify-content: center;
-      background-color: #3cc929;
+      background-color: #5cb85c;
+      color: #ffffff;
       margin: auto;
       margin-top: 10px;
-      color: #ffffff;
       border: none;
       border-radius: 5px;
       width:
@@ -64,6 +66,7 @@
   <div class="container mt-5">
     <div class="product-details">
       <div class="product-info">
+
         <h1>{{payload._doc.name}}</h1>
         <p><strong>Descripción:</strong> {{payload._doc.description}}</p>
         <p><strong>Categoría:</strong> {{payload._doc.category}}</p>
@@ -72,13 +75,36 @@
       </div>
       <div class="product-image-container">
         <img src="{{payload._doc.image_url}}" alt="{{payload._doc.name}}" class="product-image" />
-        <button class="add-to-cart-btn" onclick="addToCart(this)" id="{{payload._doc._id}}">
+        <button class="add-to-cart-btn" onclick="addToCart('{{payload._doc._id}}', '{{cart}}')">
           <i class="bi bi-cart-plus"></i>
         </button>
+
       </div>
     </div>
   </div>
-
+  <script>
+    function addToCart(productId, cart) {
+      fetch(`/api/carts/${cart}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId }),
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Producto agregado al carrito:', data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  </script>
 </body>
 
 </html>

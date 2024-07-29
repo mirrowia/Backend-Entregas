@@ -1,0 +1,158 @@
+paths:
+  /api/products/:
+    get:
+      summary: Obtiene todos los productos
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Los productos se listaron correctamente.
+        "500":
+          description: Error internos del servirod al obtener los productos.
+  /api/products/manager/new-product:
+    post:
+      summary: Si el usuario es "admin" o "premium" grega un produto nuevo a la tienda
+      tags:
+        - Products
+      parameters:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nombre del producto
+                description:
+                  type: string
+                  description: Descripcion del producto
+                category:
+                  type: string
+                  description: Categoria del producto
+                stock:
+                  type: string
+                  description: Cantidad de unidades disponibles del producto
+                price:
+                  type: string
+                  description: Precio del producto
+                image_url:
+                  type: string
+                  description: Link a imagen del producto
+      responses:
+        "200":
+          description: El producto se creo correctamente.
+        "500":
+          description: Error al intentar crear el producto.
+  /api/products/manager/{pid}:
+    delete:
+      summary: Elimina productos de la tienda
+      tags:
+        - Products
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: ID producto en la tienda
+        schema:
+          $type: String
+        responses:
+          "200":
+            description: El producto se elimino correctamente.
+          "500":
+            description: Error al intentar eliminar el producto.
+  /api/products/categories:
+    get:
+      summary: Obtiene todos los productos
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Los productos se listaron correctamente.
+        "500":
+          description: Error internos del servirod al obtener los productos.
+  /api/products/{pid}:
+    get:
+      summary: Obtiene un producto por su ID
+      tags:
+        - Products
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: ID producto en la tienda
+        schema:
+          $type: String
+        responses:
+          "200":
+            description: El producto se listó correctamente.
+          "500":
+            description: Error al intentar obtener el producto.
+    put:
+      summary: Modifica un producto por su ID
+      tags:
+        - Products
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: ID producto en la tienda
+        schema:
+          $type: String
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nombre del producto
+                description:
+                  type: string
+                  description: Descripcion del producto
+                category:
+                  type: string
+                  description: Categoria del producto
+                stock:
+                  type: string
+                  description: Cantidad de unidades disponibles del producto
+                price:
+                  type: string
+                  description: Precio del producto
+                image_url:
+                  type: string
+                  description: Link a imagen del producto    
+        responses:
+          "200":
+            description: El producto se listó correctamente.
+          "500":
+            description: Error al intentar obtener el producto.
+
+
+# components:
+#   schemas:
+#     Cart:
+#       type: object
+#       properties:
+#         _id:
+#           type: ObjectId
+#           description: ID generado por mongo
+#         user:
+#           type: ObjectId
+#           description: ID del usuario dueño del carrito
+#         products:
+#           type: Array
+#           description: Array que contiene ID de los productos agregados al carrito y su cantidad
+#       example:
+#         _id: "653ee5a30b3cd9af9cef5b83"
+#         user: "653ee5a30b3cd9af9cef5b82"
+#         products: [
+#               {
+#                   "product": "64fe4918c2b98b5bd903853c",
+#                   "quantity": 1,
+#                   "_id": "656d1a17931844fa4bef805a"
+#               }
+#           ]

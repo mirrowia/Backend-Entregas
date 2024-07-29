@@ -7,16 +7,33 @@ dotenv.config();
 PRIVATE_KEY= process.env.PRIVATE_KEY
 
 const createHash = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-const isValidPassword = (user, password) => bcrypt.compareSync(password, user.password);
+const isValidPassword = (password, user) => bcrypt.compareSync(password, user.password)
 
 const generateToken = (user, time) =>{
     const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: time });
     return token
 }
 
+const validateToken = (req, res) =>{
+    const token = req
+    try {
+        const decodedToken = jwt.verify(token, PRIVATE_KEY);
+        return true;
+      } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+          // El token ha expirado
+          console.log('El token ha expirado');
+        } else {
+          // Otro error de verificación
+          console.error('Error al verificar el token:', error.message);
+        }
+        return null;
+      }
+}
+
 const authToken = (req, res, next) =>{
     const token = req.cookies.userToken
-    if(!token) return res.redirect("/api/sessions/login")
+    if(!token) return res.redirect("/shop/sessions/login")
     jwt.verify(token, PRIVATE_KEY, (error, credentials)=>{
         if(error) return res.status(403).send({error: "No Authorized"})
         req.user = credentials.user
@@ -35,5 +52,6 @@ module.exports = {
     isValidPassword,
     generateToken,
     authToken,
-    decodedToken
+    decodedToken,
+    validateToken
 };

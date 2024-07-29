@@ -4,6 +4,10 @@ function getUsers(){
     return sessionData.getUsers();
 }
 
+function getUsersPaginate(object, options){
+    return sessionData.getUsersPaginate(object, options)
+}
+
 function getUser(email){
     return sessionData.getUser(email);
 }
@@ -26,6 +30,7 @@ function deleteUser(id){
 
 module.exports = {
     getUsers,
+    getUsersPaginate,
     getUser,
     getUserById,
     createUser,

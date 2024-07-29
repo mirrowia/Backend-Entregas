@@ -18,14 +18,14 @@
             <h1 class="navbar-brand fs-3 p-0">Productos</h1>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item d-flex align-items-center">
-                    <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/"><i
+                    <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/shop/sessions/profile"><i
                             class="bi bi-person-circle ms-3"></i>
                     </a>
-                    {{#unless (eq rol "Admin")}}
-                    <a class="nav-link d-flex fs-5" href="/api/community">
+                    {{#unless (eq rol "admin")}}
+                    <a class="nav-link d-flex fs-5" href="/shop/community/chat">
                         <i class="bi bi-people-fill ms-3"></i>
                     </a>
-                    <a class="nav-link d-flex fs-5" href="/api/carts/{{cart}}">
+                    <a class="nav-link d-flex fs-5" href="/shop/carts/{{cart}}">
                         <i class="bi bi-cart-fill ms-3"></i>
                     </a>
                     {{/unless}}
@@ -45,6 +45,13 @@
             </select>
             <button id="searchButton" class="btn btn-light">Buscar</button>
         </div>
+        {{#if (eq rol "premium")}}
+        <!-- Botón para agregar un producto -->
+        <div class="d-flex justify-content-end mt-3">
+            <button class="btn text-success fw-bold border border-success" onclick="addProduct()">Agregar Producto <i
+                    class="bi bi-plus-lg"></i></button>
+        </div>
+        {{/if}}
 
         <!-- Lista de productos -->
         <table class="table">
@@ -55,14 +62,14 @@
                     <th>Stock</th>
                     <th id="priceHeader" style="cursor: pointer;">Precio</th>
                     <th>Imagen</th>
-                    <th></th>
+                    <th>Opciones</th>
                 </tr>
             </thead>
             <tbody>
                 {{#each payload}}
                 <tr>
                     <td>
-                        <a href="/api/products/{{this._doc._id}}" class="text-decoration-none text-dark"
+                        <a href="/shop/{{this._doc._id}}" class="text-decoration-none text-dark"
                             style="font-weight: bold; font-size: 1rem; font-family: 'Arial', sans-serif;">
                             {{this._doc.name}}
                         </a>
@@ -75,15 +82,33 @@
                         </span>
                     </td>
                     <td>
-                        <a href="/api/products/{{this._doc._id}}">
+                        <a href="/shop/{{this._doc._id}}">
                             <img src="{{this._doc.image_url}}" alt="{{this._doc.name}}" width="100">
                         </a>
                     </td>
                     <td>
-
+                        {{#if this._doc.owner}}
+                        {{#if (eq rol "admin")}}
                         <button class="btn" onclick="addToCart(this)" id="{{this._doc._id}}" cart="{{../cart}}">
                             <i class="bi bi-cart-fill"></i>
                         </button>
+                        {{else}}
+                        {{/if}}
+
+                        <button class="btn text-warning" onclick="editProduct(this)" data-productid="{{this._doc._id}}">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn text-danger" onclick="deleteProduct(this)"
+                            data-productid="{{this._doc._id}}">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+
+                        {{else}}
+                        <button class="btn" onclick="addToCart(this)" id="{{this._doc._id}}" cart="{{../cart}}">
+                            <i class="bi bi-cart-fill"></i>
+                        </button>
+
+                        {{/if}}
                     </td>
                 </tr>
                 {{/each}}
@@ -121,6 +146,48 @@
     </div>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
+        // EDIT PRODUCT
+        function editProduct(button) {
+            const productId = button.getAttribute("data-productid");
+            window.location.href = `/shop/manager/${productId}`;
+        }
+
+        // ADD PRODUCT
+        function addProduct() {
+            window.location.href = "/shop/manager/new-product";
+        }
+
+        // DELETE PRODUCT
+        function deleteProduct(button) {
+            const productId = button.getAttribute("data-productid");
+            fetch(`/api/products/manager/${productId}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        Toastify({
+                            text: "Error al eliminar el producto",
+                            duration: 3000,
+                            close: true,
+                            gravity: "bottom",
+                            position: "right",
+                        }).showToast();
+                    }
+                })
+                .catch(error => {
+                    // Mostrar un mensaje de error si ocurre un error de red u otro error durante la eliminación
+                    Toastify({
+                        text: "Error de red al eliminar el producto",
+                        duration: 3000,
+                        close: true,
+                        gravity: "bottom",
+                        position: "right",
+                    }).showToast();
+                    console.error('Error:', error);
+                });
+        }
 
         document.addEventListener("DOMContentLoaded", function () {
 

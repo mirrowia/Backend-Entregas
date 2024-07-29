@@ -1,5 +1,5 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <title>Comunidad</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
     <style>
         body {
-            font-family: Arial, sans-serif;
             display: flex;
             flex-direction:
                 column;
@@ -55,14 +54,14 @@
             <h1 class="navbar-brand fs-3 p-0">Comunidad</h1>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item d-flex align-items-center">
-                    <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/"><i
+                    <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/shop/sessions/profile"><i
                             class="bi bi-person-circle ms-3"></i>
                     </a>
-                    {{#unless (eq rol "Admin")}}
-                    <a class="nav-link d-flex fs-5" href="/api/community">
+                    {{#unless (eq rol "admin")}}
+                    <a class="nav-link d-flex fs-5" href="/shop/community/chat">
                         <i class="bi bi-people-fill ms-3"></i>
                     </a>
-                    <a class="nav-link d-flex fs-5" href="/api/carts/{{cart}}">
+                    <a class="nav-link d-flex fs-5" href="/shop/carts/{{cart}}">
                         <i class="bi bi-cart-fill ms-3"></i>
                     </a>
                     {{/unless}}

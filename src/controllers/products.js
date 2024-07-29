@@ -1,5 +1,8 @@
 const productService = require("../services/product");
+const sessionService = require("../services/session");
 const { decodedToken } = require("../utils")
+const mailer = require("../config/nodemailer");
+const { logger } = require("../config/nodemailer");
 
 async function getProducts(req, res) {
   let { limit, page, sort, category, stock } = req.query;
@@ -56,9 +59,9 @@ async function getProducts(req, res) {
   }
 }
 
-async function getProductsList(req, res) {
+async function renderProducts(req, res) {
   const token = req.cookies.userToken;
-  const { cart, email } = decodedToken(token);
+  const { cart, email, _id, rol} = decodedToken(token);
 
   let { limit, page, sort, query } = req.query;
 
@@ -87,6 +90,16 @@ async function getProductsList(req, res) {
     } catch (error) {
       console.log(error);
     }
+
+    products.docs = products.docs.map(product => {
+      if(product._doc.owner == _id){
+        product._doc.owner = true;
+      }else{
+        product._doc.owner = false
+      }
+      return product
+    });
+
     res.render("products", {
       status: "success",
       payload: products.docs,
@@ -99,11 +112,30 @@ async function getProductsList(req, res) {
       pageNumbers: pageNumbers,
       categories: categories,
       cart,
+      rol,
       username: email,
     });
   } catch (error) {
     res.render("products", {
       status: "error",
+    });
+  }
+}
+
+async function renderProduct(req, res) {
+  let id = req.params.id;
+  const userToken = req.cookies.userToken
+  const cart = decodedToken(userToken).cart
+  try {
+    const product = await productService.getProduct(id);
+
+    res.render("product", {
+      payload: product,
+      cart: cart
+    });
+  } catch (error) {
+    res.status({
+      status: error,
     });
   }
 }
@@ -136,7 +168,7 @@ async function getProductCategories(req, res) {
   }
 }
 
-async function getProductsManager(req, res) {
+async function renderManager(req, res) {
   const token = req.cookies.userToken;
   const { cart, email } = decodedToken(token);
 
@@ -188,11 +220,14 @@ async function getProductsManager(req, res) {
   }
 }
 
-async function getProductManager(req, res) {
+async function renderProductManagement(req, res) {
   let id = req.params.id;
   try {
     const product = await productService.getProduct(id);
-
+    const userId = (decodedToken(req.cookies.userToken))._id
+    if(product.owner != userId){
+      if(req.user.rol !== 'admin') return res.status(403).json({ error: 'Acceso no autorizado.' });
+    } 
     res.render("productManager", {
       payload: product,
     });
@@ -203,9 +238,9 @@ async function getProductManager(req, res) {
   }
 }
 
-async function getCreateProduct(req, res) {
+async function renderProductCreation(req, res) {
   try {
-    res.render("createProduct");
+    res.render("create-product");
   } catch (error) {
     res.status({
       status: error,
@@ -213,8 +248,13 @@ async function getCreateProduct(req, res) {
   }
 }
 
-async function postCreateProduct(req, res) {
+async function createProduct(req, res) {
+  const token = req.cookies.userToken;
+  const user = decodedToken(token)
   const { name, description, category, stock, price, image_url } = req.body;
+
+  const owner =  user._id;
+  
   try {
     const newProduct = {
       name,
@@ -222,12 +262,12 @@ async function postCreateProduct(req, res) {
       category,
       stock,
       price,
-      image_url
+      image_url,
+      owner,
     }
-
     productService.addProduct(newProduct);
 
-    res.status(200).json({ message: 'Producto creado correctamente' });
+    res.status(200).json({ message: 'Producto creado correctamente', userRole: user.rol });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -236,10 +276,13 @@ async function postCreateProduct(req, res) {
 
 async function updateProduct(req, res) {
   let id = req.params.id;
-  const { name, description, category, stock, price, image_url } = req.body;
+  const userId = (decodedToken(req.cookies.userToken))._id
+  const { name, description, category, stock, price, image_url} = req.body;
+
   try {
-    let product = productService.getProduct(id);
+    let product = await productService.getProduct(id);
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+    if(! product.owner == userId) return res.status(403).json({ error: 'Acceso no autorizado.' });
 
     product.name = name;
     product.description = description;
@@ -248,7 +291,7 @@ async function updateProduct(req, res) {
     product.price = price;
     product.image_url = image_url;
 
-    productService.updateProduct(id, product);
+     productService.updateProduct(id, product);
     res.status(200).json({ message: 'Producto actualizado correctamente' });
   } catch (error) {
     console.error(error);
@@ -258,11 +301,35 @@ async function updateProduct(req, res) {
 
 async function deleteProduct(req, res) {
   let id = req.params.id;
+  const token = req.cookies.userToken;
+  const { email, rol} = decodedToken(token);
+
   try {
-    let product = productService.getProduct(id);
+    let product = await productService.getProduct(id);
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
 
-    productService.deleteProduct(id)
+    const owner = await sessionService.getUserById(product.owner)
+    const user = await sessionService.getUser(email)
+
+    if(rol != "admin"){
+      if(owner._id.toString() != user._id.toString())return res.status(403).json({ error: 'Acceso no autorizado.' });
+    }
+
+    await productService.deleteProduct(id)
+
+    const emailToUser = {
+      from: "andresisella@gmail.com",
+      to: owner.email,
+      subject: "Product Update - E-Commerce product removed",
+      html: `<p>We're sorry to inform you that your product <b>${product.name}</b> has been removed from the store.</p>`,
+    };
+
+    mailer.sendMail(emailToUser, (error, info) => {
+      if (error) return console.error(error);
+
+      logger.info("Correo enviado: " + info.response);
+    });
+
     res.status(200).json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
     console.error(error);
@@ -270,15 +337,39 @@ async function deleteProduct(req, res) {
   }
 }
 
+async function setproductImage(req, res) {
+  const productId = req.params.id;
+  try {
+    //VERIFY IF A FILE WAS UPLOADED
+    if (!req.file) {return res.status(400).json({ error: "No se proporcionó ningún archivo." })}
+
+    let product = await productService.getProduct(productId)
+
+    product.image_url = `/products/${productId}/product.jpeg`
+
+    await productService.updateProduct(productId, product)
+
+    return res
+      .status(200)
+      .json({ message: "Archivo subido con éxito."});
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error interno del servidor." });
+  }
+}
+
+
 module.exports = {
   getProducts,
-  getProductsList,
   getProductById,
   getProductCategories,
-  getProductsManager,
-  getProductManager,
-  getCreateProduct,
-  postCreateProduct,
+  setproductImage,
+  createProduct,
   deleteProduct,
   updateProduct,
+  renderProducts,
+  renderManager,
+  renderProductCreation,
+  renderProductManagement,
+  renderProduct,
 };

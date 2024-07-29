@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -19,14 +20,14 @@
       <h1 class="navbar-brand fs-3 p-0">Carrito</h1>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item d-flex align-items-center">
-          <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/api/sessions/"><i
+          <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/shop/sessions/profile"><i
               class="bi bi-person-circle ms-3"></i>
           </a>
-          {{#unless (eq rol "Admin")}}
-          <a class="nav-link d-flex fs-5" href="/api/community">
+          {{#unless (eq rol "admin")}}
+          <a class="nav-link d-flex fs-5" href="/shop/community/chat">
             <i class="bi bi-people-fill ms-3"></i>
           </a>
-          <a class="nav-link d-flex fs-5" href="/api/carts/{{cartId}}">
+          <a class="nav-link d-flex fs-5" href="/shop/carts/{{cartId}}">
             <i class="bi bi-cart-fill ms-3"></i>
           </a>
           {{/unless}}
@@ -78,7 +79,7 @@
     <li class="list-group-item d-flex justify-content-center align-items-center">
       <div class="text-center">
         <p>No hay productos en el carrito</p>
-        <a href="/api/products/list">Vuelve a la página de productos</a>
+        <a href="/shop/">Vuelve a la página de productos</a>
       </div>
     </li>
     {{/if}}
@@ -87,9 +88,8 @@
   <script>
     function eliminarProducto(productId, quantity) {
 
-      // Reemplaza "cid" y "pid" con los valores reales si es necesario
-      const cartId = "cid"; // Reemplaza "cid" con el valor correcto
-      const endpoint = `{{cartId}}/products/${productId}`;
+      const cartId = "cid";
+      const endpoint = `/api/carts/{{cartId}}/products/${productId}`;
 
       // Realiza una solicitud DELETE al endpoint
       fetch(endpoint, {
@@ -117,8 +117,7 @@
     }
 
     function continuePurchase(cartId) {
-      console.log(cartId)
-      window.location.href = `/api/carts/${cartId}/purchase`;
+      window.location.href = `/shop/carts/${cartId}/purchase`;
     }  
   </script>
 

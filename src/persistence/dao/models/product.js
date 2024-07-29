@@ -10,6 +10,7 @@ const productSchema = new mongoose.Schema({
   stock: { type: Number, required: true },
   price: { type: Number, required: true },
   image_url: { type: String, required: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "users", default: "admin" }
 });
 productSchema.plugin(mongoosePaginate);
 const productModel = mongoose.model(productCollection, productSchema);
