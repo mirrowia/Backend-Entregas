@@ -1,6 +1,7 @@
 {
-  "name": "segundapreentrega",
+  "name": "proyecto_nodejs",
   "version": "1.0.0",
+  "main": "app.js",
   "description": "",
   "scripts": {
     "start": "nodemon src/app.js",
