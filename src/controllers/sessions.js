@@ -180,28 +180,18 @@ async function sendEmail(req, res) {
   return res.status(200).send({ status: "ok", message: "Correo enviado" });
 }
 
-async function githubLogin(req, res, next) {
+function githubLogin(req, res, next) {
   passport.authenticate("github")(req, res, next);
 }
 
-async function githubCallback(req, res, next) {
-  passport.authenticate("github", async (err, token) => {
-    if (err)
-      return res.status(500).send("Error durante la autenticación con GitHub");
-    if (!token)
-      return res.status(401).send("Error durante la autenticación con GitHub");
+function githubCallback(req, res, next) {
+  passport.authenticate("github", { failureRedirect: "/login" }, (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.redirect("/login");
 
-    // GET EMAIL
-    const email = decodedToken(token).email;
-    logger.info(`El usuario ${email} acaba de iniciar sesion`);
-
-    // Almacena la información del usuario en la cookie
+    const token = generateToken(user, "24h");
     res.cookie("userToken", token, { maxAge: 86400000, httpOnly: true });
-
-    let dbUser = await sessionService.getUser(email);
-    dbUser.last_connection = new Date();
-    await sessionService.updateUser(dbUser._id, dbUser);
-    return res.redirect("/shop/");
+    res.redirect("/shop/");
   })(req, res, next);
 }
 
