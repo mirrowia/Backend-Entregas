@@ -1,6 +1,5 @@
 const socketIo = require("socket.io");
 const cookie = require("cookie");
-const sessionService = require("../services/session")
 const { decodedToken } = require("../utils");
 
 const connectedUsers = [];
