@@ -186,6 +186,7 @@ function githubLogin(req, res, next) {
 
 function githubCallback(req, res, next) {
   passport.authenticate("github", { failureRedirect: "/login" }, (err, user, info) => {
+    console.log("AH")
     if (err) return next(err);
     if (!user) return res.redirect("/login");
     res.cookie("userToken", user, { maxAge: 86400000, httpOnly: true });

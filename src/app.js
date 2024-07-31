@@ -27,6 +27,8 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 8080
 
+console.log("TEST")
+
 // STATIC DIRECTORY
 app.use(express.static(path.join(__dirname, 'src', 'uploads')));
 
