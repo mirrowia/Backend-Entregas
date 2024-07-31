@@ -16,6 +16,6 @@ const config = {
     baseUrl: process.env.BASE_URL
 };
 
-console.log(config)
+console.log(process.env)
 
 module.exports = config;
