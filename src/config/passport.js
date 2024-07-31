@@ -45,9 +45,6 @@ const initializePassport = () => {
 
     }, async (accessToken, refreshToken, profile, done) => {
         try {
-            console.log("So far so good")
-            console.log(profile)
-            console.log(profile._json)
             const user = await sessionService.getUser(profile._json.email)
             if (!user) {
                 const newuser = {
@@ -60,7 +57,7 @@ const initializePassport = () => {
                 let result = await sessionService.createUser(newuser)
                 const cart = await cartService.createCart({ user: result._id, products: [] })
                 result.cart = cart
-                result.save()
+                await result.save()
                 console.log(result)
                 const accessToken = generateToken(result)
                 done(null, accessToken)
@@ -68,10 +65,8 @@ const initializePassport = () => {
                 const accessToken = generateToken(user, "24h")
                 done(null, accessToken)
             }
-        } catch (error) {
-            console.log("No far no good")
-            console.log(error)
-            return done(error)
+        } catch (err) {
+            return done(err)
         }
     }
     ))
