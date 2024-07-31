@@ -69,6 +69,8 @@ const initializePassport = () => {
                 done(null, accessToken)
             }
         } catch (error) {
+            console.log("No far no good")
+            console.log(error)
             return done(error)
         }
     }
