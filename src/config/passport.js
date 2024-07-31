@@ -44,6 +44,7 @@ const initializePassport = () => {
         callbackURL: config.githubCallbackUrl,
 
     }, async (accessToken, refreshToken, profile, done) => {
+        console.log(callbackURL)
         try {
             const user = await sessionService.getUser(profile._json.email)
             if (!user) {
