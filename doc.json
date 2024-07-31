@@ -1,5 +1,13 @@
 [
   {
+    "name": "Hunt: Showdown",
+    "description": "Un juego de rol de acción ambientado en un mundo de fantasía abierto.",
+    "category": "FPS",
+    "stock": 230,
+    "price": 14.99,
+    "image_url": "https://steamcdn-a.akamaihd.net/steam/apps/594650/capsule_616x353.jpg"
+  },
+  {
     "name": "The Witcher 3: Wild Hunt",
     "description": "Un juego de rol de acción ambientado en un mundo de fantasía abierto.",
     "category": "RPG",

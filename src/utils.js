@@ -1,10 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv')
+const config = require("./config/config");
 
-dotenv.config();
-
-PRIVATE_KEY= process.env.PRIVATE_KEY
+PRIVATE_KEY= config.privateKey;
 
 const createHash = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 const isValidPassword = (password, user) => bcrypt.compareSync(password, user.password)

@@ -11,7 +11,6 @@ const cartUiRouter = require("./routes/ui/carts");
 const loginUiRouter = require("./routes/ui/sessions");
 const communityUiRouter = require("./routes/ui/community");
 const handlebars = require("express-handlebars");
-const bodyParser = require("body-parser");
 const passport = require("passport");
 const initializePassport = require("./config/passport");
 const path = require("path");
@@ -47,11 +46,13 @@ app.engine(
 );
 app.set("views", path.join(__dirname, "/views"));
 app.set("view engine", "handlebars");
-app.use( express.static('src/uploads'));
 
 // BODY PARSER MIDDLEWARE
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+
+
 
 // MONGOOSE CONNECTION
 mongoose.connect(config.mongoUrl)

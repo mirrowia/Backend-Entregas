@@ -4,8 +4,8 @@
   "main": "src/app.js",
   "description": "",
   "scripts": {
-    "start": "nodemon src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cross-env NODE_ENV=prod node src/app.js",
+    "dev": "cross-env NODE_ENV=dev node src/app.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +17,7 @@
     "connect-mongo": "^5.0.0",
     "cookie": "^0.5.0",
     "cookie-parser": "^1.4.6",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "express-handlebars": "^7.1.2",
     "express-session": "^1.17.3",
@@ -38,6 +38,7 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "nodemon": "^3.0.2"
   }
 }

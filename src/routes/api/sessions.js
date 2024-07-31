@@ -9,7 +9,7 @@ router.post("/logout", authToken, controller.logout);
 router.post("/password-recover", controller.sendEmail)
 router.put("/password-change", controller.passwordChange);
 router.get("/github", controller.githubLogin);
-router.get("/githubcallback", controller.githubCallback);
+router.get("/github/callback", controller.githubCallback);
 router.get("/current", authToken, controller.current )
 
 module.exports = router;

@@ -188,9 +188,7 @@ function githubCallback(req, res, next) {
   passport.authenticate("github", { failureRedirect: "/login" }, (err, user, info) => {
     if (err) return next(err);
     if (!user) return res.redirect("/login");
-
-    const token = generateToken(user, "24h");
-    res.cookie("userToken", token, { maxAge: 86400000, httpOnly: true });
+    res.cookie("userToken", user, { maxAge: 86400000, httpOnly: true });
     res.redirect("/shop/");
   })(req, res, next);
 }
