@@ -181,7 +181,6 @@ async function sendEmail(req, res) {
 }
 
 function githubLogin(req, res, next) {
-  console.log("TEST LOG GIT")
   passport.authenticate("github")(req, res, next);
 }
 
