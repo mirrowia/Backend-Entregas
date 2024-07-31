@@ -2,19 +2,22 @@
 <html lang="en">
 <head>
     <title>Comunidad</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
     <style>
         body {
             display: flex;
-            flex-direction: column;
+            flex-direction:
+                column;
             height: 100vh;
             margin: 0;
         }
 
         #chat-container {
             display: flex;
-            flex: 1;
+            flex:
+                1;
         }
 
         #users {
@@ -33,7 +36,8 @@
             padding: 20px;
             background-color: #f2f2f2;
             display: flex;
-            align-items: center;
+            align-items:
+                center;
         }
 
         #message-input {
@@ -50,7 +54,9 @@
             <h1 class="navbar-brand fs-3 p-0">Comunidad</h1>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item d-flex align-items-center">
-                    <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/shop/sessions/profile"><i class="bi bi-person-circle ms-3"></i></a>
+                    <a class="nav-link d-flex p-0 fs-5 align-items-center" href="/shop/sessions/profile"><i
+                            class="bi bi-person-circle ms-3"></i>
+                    </a>
                     {{#unless (eq rol "admin")}}
                     <a class="nav-link d-flex fs-5" href="/shop/community/chat">
                         <i class="bi bi-people-fill ms-3"></i>
@@ -79,7 +85,8 @@
     </div>
     <div id="message-form" class="container-fluid bg-light p-4">
         <div class="input-group">
-            <input type="text" id="message-input" class="form-control" autocomplete="off" placeholder="Escribe tu mensaje..." />
+            <input type="text" id="message-input" class="form-control" autocomplete="off"
+                placeholder="Escribe tu mensaje..." />
             <div class="input-group-append">
                 <button type="button" id="send-button" class="btn btn-primary">Enviar</button>
             </div>
@@ -88,9 +95,8 @@
 
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     <script>
-        // Conectar al servidor de Socket.IO
-        const socket = io('https://mirrowia-nodejs-project.vercel.app/'); // Reemplaza con la URL correcta de tu servidor
-
+        //Connect to socketIO Server
+        const socket = io();
         const userList = document.getElementById('user-list');
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -102,45 +108,46 @@
                 const message = messageInput.value.trim();
                 if (message) {
                     // Enviar el nombre del usuario y el mensaje al servidor a través de Socket.io
-                    socket.emit('chat message', { message: message });
+                    socket.emit('chat message', {message: message });
                     // Limpiar el campo de entrada después de enviar el mensaje
                     messageInput.value = '';
                 }
             });
 
-            socket.on('chat message', (data) => {
-                // Agregar el nombre del usuario y el mensaje al chat
-                const messagesList = document.getElementById('messages');
-                const messageItem = document.createElement('li');
-                
-                // Crear un elemento de span para el nombre de usuario con el color especificado
-                const userSpan = document.createElement('span');
-                userSpan.style.color = data.chat_color; // Establecer el color del texto del nombre de usuario
-                userSpan.textContent = `${data.user}: `; // Agregar el nombre del usuario al mensaje
-                messageItem.appendChild(userSpan);
-                
-                // Agregar el mensaje al elemento de lista
-                const messageSpan = document.createElement('span');
-                messageSpan.textContent = data.message;
-                messageItem.appendChild(messageSpan);
-                
-                // Agregar el mensaje completo al chat
-                messagesList.appendChild(messageItem);
-            });
+socket.on('chat message', (data) => {
+    // Agregar el nombre del usuario y el mensaje al chat
+    const messagesList = document.getElementById('messages');
+    const messageItem = document.createElement('li');
+    
+    // Crear un elemento de span para el nombre de usuario con el color especificado
+    const userSpan = document.createElement('span');
+    userSpan.style.color = data.chat_color; // Establecer el color del texto del nombre de usuario
+    userSpan.textContent = `${data.user}: `; // Agregar el nombre del usuario al mensaje
+    messageItem.appendChild(userSpan);
+    
+    // Agregar el mensaje al elemento de lista
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = data.message;
+    messageItem.appendChild(messageSpan);
+    
+    // Agregar el mensaje completo al chat
+    messagesList.appendChild(messageItem);
+});
+        });
 
-            // Manejar eventos de usuarios conectados
-            socket.on('users connected', (users) => {
-                // Limpiar la lista de usuarios antes de actualizarla
-                userList.innerHTML = '';
+        // Manejar eventos de usuarios conectados
+        socket.on('users connected', (users) => {
+            // Limpiar la lista de usuarios antes de actualizarla
+            userList.innerHTML = '';
 
-                // Recorrer la lista de usuarios y agregar cada usuario a la lista
-                users.forEach(user => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = user.email;
-                    userList.appendChild(listItem);
-                });
+            // Recorrer la lista de usuarios y agregar cada usuario a la lista
+            users.forEach(user => {
+                const listItem = document.createElement('li');
+                listItem.textContent = user.email;
+                userList.appendChild(listItem);
             });
         });
     </script>
 </body>
+
 </html>

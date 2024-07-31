@@ -6,7 +6,12 @@ const connectedUsers = [];
 const colors = ["red", "green", "blue", "lightblue", "brown"]
 
 function configureSocket(server) {
-    const io = socketIo(server);
+    const io = socketIo(server, {
+        cors: {
+            origin: "*",
+            methods: ["GET", "POST"]
+        }
+    });
 
     io.on('connection', (socket) => {
 
